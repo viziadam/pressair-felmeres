@@ -1,6 +1,7 @@
 version: "3.9"
+
 services:
-  web:                      # Nginx + statikus + proxy
+  web:
     build:
       context: .
       dockerfile: Dockerfile
@@ -9,25 +10,15 @@ services:
     depends_on:
       - backend
     ports:
-      # - "0.0.0.0:50080:80"
-      # - "0.0.0.0:4450:443"
-      - "0.0.0.0:50080:80"
-      - "0.0.0.0:4450:443"
-      # Ha később HTTPS is kell: - "0.0.0.0:4450:443"
-    # volumes:
-    #   - ./dist:/usr/share/nginx/html:ro
-    #   - ./server/src/offline/assets/sw.prod.js:/usr/share/nginx/html/sw.js:ro
-    #   - ./server/src/offline/assets/sw-register.js:/usr/share/nginx/html/sw-register.js:ro
-    #   - ./server/src/offline/assets/manifest.webmanifest:/usr/share/nginx/html/manifest.webmanifest:ro
-    #   - ./gen-certs.ps1/certs:/etc/nginx/certs:ro    # <-- IDE mutasson!
-      # (ha HTTPS-t is használsz majd:)
-      # - ./certs/pressair-local.crt:/etc/nginx/certs/pressair-local.crt:ro
-      # - ./certs/pressair-local.key:/etc/nginx/certs/pressair-local.key:ro
+      # Itt mondjuk meg, hogy kívülről a 8087-es porton jöjjön be a forgalom, 
+      # amit a konténeren belül a 80-as (Nginx) portra irányítunk.
+      # A 0.0.0.0 azt jelenti, hogy a gép minden IP címén (így a 10.20.40.161-en is) hallgatni fog.
+      - "0.0.0.0:8087:80"
+      # - "0.0.0.0:4450:443" # Ezt hagyd kikommentezve, amíg nem állítod be a HTTPS-t
     volumes:
-      - ./dist:/usr/share/nginx/html:ro
+      # - ./dist:/usr/share/nginx/html:ro  <-- EZT VEDD KI! Különben tönkreteszi a multi-stage buildet!
       - ./server/src/offline/assets:/opt/assets:ro
       - ./gen-certs.ps1/certs:/etc/nginx/certs:ro
-
     restart: unless-stopped
 
   backend:
