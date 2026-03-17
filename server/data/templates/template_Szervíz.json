@@ -1,0 +1,57 @@
+{
+  "meta": {
+    "id": "fa6eb94a-f101-46a2-9725-30ad07e2ad12",
+    "name": "Szervíz"
+  },
+  "elements": [
+    {
+      "id": "6f3a71b1-0705-4af6-bad7-a92141919e26",
+      "type": "text",
+      "label": "Szöveg",
+      "grid": {
+        "i": "6f3a71b1-0705-4af6-bad7-a92141919e26",
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "946215f4-2700-45ec-9887-443f7af2dfdc",
+      "type": "text",
+      "label": "Szöveg",
+      "grid": {
+        "i": "946215f4-2700-45ec-9887-443f7af2dfdc",
+        "x": 0,
+        "y": 1,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "3c7faa98-bc52-4913-96cf-aa0a241e5abc",
+      "type": "dropdown",
+      "label": "Legördülő",
+      "grid": {
+        "i": "3c7faa98-bc52-4913-96cf-aa0a241e5abc",
+        "x": 0,
+        "y": 2,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "Opció 1",
+        "Opció 2"
+      ]
+    }
+  ]
+}

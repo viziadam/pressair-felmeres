@@ -1,0 +1,1 @@
+export const SURVEY_TABS = ['Rendszer', 'Szervíz', 'Állapotfelmérési jk', 'N2 ellátás felmérési jk', 'Nyomástartó edény felmérési jk', 'Kiegészítő'] as const;

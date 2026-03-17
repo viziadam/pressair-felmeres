@@ -1,0 +1,46 @@
+version: "3.9"
+services:
+  web:                      # Nginx + statikus + proxy
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: yourapp-web
+    container_name: yourapp-web
+    depends_on:
+      - backend
+    ports:
+      # - "0.0.0.0:50080:80"
+      # - "0.0.0.0:4450:443"
+      - "0.0.0.0:50080:80"
+      - "0.0.0.0:4450:443"
+      # Ha később HTTPS is kell: - "0.0.0.0:4450:443"
+    # volumes:
+    #   - ./dist:/usr/share/nginx/html:ro
+    #   - ./server/src/offline/assets/sw.prod.js:/usr/share/nginx/html/sw.js:ro
+    #   - ./server/src/offline/assets/sw-register.js:/usr/share/nginx/html/sw-register.js:ro
+    #   - ./server/src/offline/assets/manifest.webmanifest:/usr/share/nginx/html/manifest.webmanifest:ro
+    #   - ./gen-certs.ps1/certs:/etc/nginx/certs:ro    # <-- IDE mutasson!
+      # (ha HTTPS-t is használsz majd:)
+      # - ./certs/pressair-local.crt:/etc/nginx/certs/pressair-local.crt:ro
+      # - ./certs/pressair-local.key:/etc/nginx/certs/pressair-local.key:ro
+    volumes:
+      - ./dist:/usr/share/nginx/html:ro
+      - ./server/src/offline/assets:/opt/assets:ro
+      - ./gen-certs.ps1/certs:/etc/nginx/certs:ro
+
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    image: yourapp-backend
+    container_name: yourapp-backend
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      # DB_URL: ...
+      # JWT_SECRET: ...
+    expose:
+      - "3001"
+    restart: unless-stopped

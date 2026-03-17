@@ -1,0 +1,56 @@
+/* .image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+   */
+
+.image-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.image-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 100%;
+  flex: 0 1 auto;
+}
+
+.image-tile .resize-box {
+  position: relative;
+  resize: horizontal;          /* vizszintes méretezés */
+  overflow: auto;
+  min-width: 160px;
+  max-width: 100%;             /* ne lépje túl a parent szélességét */
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0;
+}
+
+.image-tile img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  pointer-events: none;         /* ne fogja el az ecsetet */
+}
+
+.annotation-canvas {
+  /* position: absolute; inset: 0; */
+  position:absolute; 
+  width: 100%; height: 100%;
+  touch-action: none;           /* tablet/ujj rajzolás */
+  pointer-events: none;         /* alapból kikapcsolva */
+}
+.annotation-canvas.active {
+  pointer-events: auto;         /* rajzolás bekapcsolva */
+  cursor: crosshair;
+}
+
+.tile-actions {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; flex-wrap: wrap; max-width: 100%;
+}

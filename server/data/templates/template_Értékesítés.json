@@ -1,0 +1,69 @@
+{
+  "meta": {
+    "id": "ac5dc6b3-9021-40e9-93fe-21a3c63e68c0",
+    "name": "Értékesítés"
+  },
+  "elements": [
+    {
+      "id": "7819de21-19c9-4fa2-96b0-15522f5789af",
+      "type": "text",
+      "label": "Szöveg",
+      "grid": {
+        "i": "7819de21-19c9-4fa2-96b0-15522f5789af",
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "eb7431f5-829d-4945-88f6-c45535c2211b",
+      "type": "text",
+      "label": "Szöveg",
+      "grid": {
+        "i": "eb7431f5-829d-4945-88f6-c45535c2211b",
+        "x": 0,
+        "y": 1,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "48ac05ba-41fc-43f6-9393-bae960acd688",
+      "type": "file",
+      "label": "Csatolmányok",
+      "grid": {
+        "i": "48ac05ba-41fc-43f6-9393-bae960acd688",
+        "x": 0,
+        "y": 2,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "multiple": true
+    },
+    {
+      "id": "80d8b640-53fe-456e-99e2-0a46920ed0f2",
+      "type": "images",
+      "label": "Képfeltöltés (kitöltéskor)",
+      "grid": {
+        "i": "80d8b640-53fe-456e-99e2-0a46920ed0f2",
+        "x": 0,
+        "y": 3,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    }
+  ]
+}

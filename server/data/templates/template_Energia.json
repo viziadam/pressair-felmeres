@@ -1,0 +1,94 @@
+{
+  "meta": {
+    "id": "fc69825b-72e4-49cb-8475-f696c4a60bf1",
+    "name": "Energia"
+  },
+  "elements": [
+    {
+      "id": "d0e39c9c-3c48-4196-b451-0002954f3dd6",
+      "type": "dropdown",
+      "label": "Legördülő",
+      "grid": {
+        "i": "d0e39c9c-3c48-4196-b451-0002954f3dd6",
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "alma ",
+        "banan",
+        "korte"
+      ]
+    },
+    {
+      "id": "6833bd10-b55a-4a66-848a-069efd965262",
+      "type": "module_compressor",
+      "label": "Kompresszor modul",
+      "grid": {
+        "i": "6833bd10-b55a-4a66-848a-069efd965262",
+        "x": 0,
+        "y": 2,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "instances": [
+        {
+          "id": "bc70d714-2275-484c-a74f-f902a39b11c5",
+          "title": "Kompresszor #1",
+          "open": true,
+          "fields": [
+            {
+              "key": "model",
+              "label": "Kompresszor típus"
+            },
+            {
+              "key": "power",
+              "label": "Névleges teljesítmény [kW]"
+            },
+            {
+              "key": "note",
+              "label": "Megjegyzés"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c7742235-160f-493c-b79d-5aa818aabc77",
+      "type": "sketch",
+      "label": "Szabadkézi rajz",
+      "grid": {
+        "i": "c7742235-160f-493c-b79d-5aa818aabc77",
+        "x": 0,
+        "y": 2,
+        "w": 12,
+        "h": 1
+      },
+      "height": 260,
+      "hideLabel": false
+    },
+    {
+      "id": "305c1152-61f8-4d04-910b-4eb28b124405",
+      "type": "images",
+      "label": "Képfeltöltés (kitöltéskor)",
+      "grid": {
+        "i": "305c1152-61f8-4d04-910b-4eb28b124405",
+        "x": 0,
+        "y": 3,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "hideLabel": true
+    }
+  ]
+}

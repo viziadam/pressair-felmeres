@@ -1,0 +1,87 @@
+{
+  "meta": {
+    "id": "fea522bf-c6f2-4c5d-9b93-961c7a077d0e",
+    "name": "Kivitelezés"
+  },
+  "elements": [
+    {
+      "id": "6a560481-080b-4ebc-bb7d-ce682bdc41ac",
+      "type": "text",
+      "label": "Szöveg",
+      "grid": {
+        "i": "6a560481-080b-4ebc-bb7d-ce682bdc41ac",
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "b19f1653-b659-49a4-958b-7a438a3a4708",
+      "type": "text",
+      "label": "Szöveg",
+      "grid": {
+        "i": "b19f1653-b659-49a4-958b-7a438a3a4708",
+        "x": 0,
+        "y": 1,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "cfddf4d0-440c-4547-a369-c152268d0e81",
+      "type": "module_station",
+      "label": "Állomás modul",
+      "grid": {
+        "i": "cfddf4d0-440c-4547-a369-c152268d0e81",
+        "x": 0,
+        "y": 2,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "instances": [
+        {
+          "id": "325331c2-d0bc-4924-bd5c-e24ffac3e85b",
+          "title": "Állomás #1",
+          "open": true,
+          "fields": [
+            {
+              "key": "name",
+              "label": "Állomás neve"
+            },
+            {
+              "key": "location",
+              "label": "Helyszín"
+            },
+            {
+              "key": "note",
+              "label": "Megjegyzés"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c43ee96e-0ba3-4545-a85d-edf95bd41daa",
+      "type": "sketch",
+      "label": "Szabadkézi rajz",
+      "grid": {
+        "i": "c43ee96e-0ba3-4545-a85d-edf95bd41daa",
+        "x": 0,
+        "y": 3,
+        "w": 12,
+        "h": 1
+      },
+      "height": 260
+    }
+  ]
+}

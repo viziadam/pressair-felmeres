@@ -1,0 +1,29 @@
+# entryPoints:
+#   web: { address: ":80" }
+#   websecure: { address: ":443" }
+
+# providers:
+#   docker:
+#     exposedByDefault: false
+#   file:
+#     filename: /etc/traefik/dynamic.yml
+
+# certificatesResolvers:
+#   le:
+#     acme:
+#       email: "${EMAIL}"
+#       storage: /letsencrypt/acme.json
+#       httpChallenge:
+#         entryPoint: web
+
+entryPoints:
+  web:
+    address: ":80"
+  websecure:
+    address: ":443"
+
+providers:
+  docker:
+    exposedByDefault: false
+  file:
+    filename: /etc/traefik/dynamic.yml

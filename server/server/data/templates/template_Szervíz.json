@@ -1,0 +1,714 @@
+{
+  "meta": {
+    "id": "70f955bc-f847-4a19-91fe-5158673d1380",
+    "name": "Szervíz"
+  },
+  "elements": [
+    {
+      "id": "e6530f8f-2e07-4983-9b0a-a3dc5af1ec23",
+      "type": "title",
+      "label": "Jelenlegi szerviz partner",
+      "grid": {
+        "i": "e6530f8f-2e07-4983-9b0a-a3dc5af1ec23",
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 1
+      }
+    },
+    {
+      "id": "5c397ef1-de95-4ddf-a914-d5dde2a56b65",
+      "type": "text",
+      "label": "cég neve:",
+      "grid": {
+        "i": "5c397ef1-de95-4ddf-a914-d5dde2a56b65",
+        "x": 0,
+        "y": 1,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "6b50ce70-8919-4cc0-b1c0-6239dd8243bc",
+      "type": "text",
+      "label": "kapcsolat ideje:",
+      "grid": {
+        "i": "6b50ce70-8919-4cc0-b1c0-6239dd8243bc",
+        "x": 0,
+        "y": 2,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "5627f949-fd57-4096-88de-6ce2dafb766c",
+      "type": "comment",
+      "label": "Megjegyzés",
+      "grid": {
+        "i": "5627f949-fd57-4096-88de-6ce2dafb766c",
+        "x": 0,
+        "y": 3,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "e00e5f56-aa34-408a-ad30-36bd479bd39e",
+      "type": "title",
+      "label": "Van-e beszállítói minősítés (ISO)",
+      "grid": {
+        "i": "e00e5f56-aa34-408a-ad30-36bd479bd39e",
+        "x": 0,
+        "y": 4,
+        "w": 12,
+        "h": 1
+      }
+    },
+    {
+      "id": "207b87e7-5642-4654-9528-28cc6b9aeebd",
+      "type": "dropdown",
+      "label": "minősítés:",
+      "grid": {
+        "i": "207b87e7-5642-4654-9528-28cc6b9aeebd",
+        "x": 0,
+        "y": 5,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "saját minősítési rendszer",
+        "Dun&Bradstreet minősítés",
+        "egyéb"
+      ]
+    },
+    {
+      "id": "3f7bad4b-f7c0-4ed9-a9a9-189958e6816b",
+      "type": "comment",
+      "label": "Megjegyzés",
+      "grid": {
+        "i": "3f7bad4b-f7c0-4ed9-a9a9-189958e6816b",
+        "x": 0,
+        "y": 6,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "889da2f0-e32b-41e4-b451-dd4c9f3c2c76",
+      "type": "title",
+      "label": "Szerviz szolgáltatási területek",
+      "grid": {
+        "i": "889da2f0-e32b-41e4-b451-dd4c9f3c2c76",
+        "x": 0,
+        "y": 7,
+        "w": 12,
+        "h": 1
+      }
+    },
+    {
+      "id": "8352e903-318b-4807-94d5-ebcbcf6a145e",
+      "type": "dropdown_multi",
+      "label": "szolgáltatási területek:",
+      "grid": {
+        "i": "8352e903-318b-4807-94d5-ebcbcf6a145e",
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 1
+      },
+      "options": [
+        "mechanikai",
+        "hűtő-klíma technikai",
+        "tömítettség vizsgálat",
+        "villamos",
+        "egyéb"
+      ]
+    },
+    {
+      "id": "fa0dbbc2-a148-44bc-bf60-eaddee3c1035",
+      "type": "comment",
+      "label": "Megjegyzés",
+      "grid": {
+        "i": "fa0dbbc2-a148-44bc-bf60-eaddee3c1035",
+        "x": 0,
+        "y": 9,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "bd236da5-d5e8-4415-8934-baf0b68c5481",
+      "type": "title",
+      "label": "Kereskedelmi, szaktanácsadói területek",
+      "grid": {
+        "i": "bd236da5-d5e8-4415-8934-baf0b68c5481",
+        "x": 0,
+        "y": 10,
+        "w": 12,
+        "h": 1
+      }
+    },
+    {
+      "id": "9d0d35d9-59c8-4850-9872-21c4425f6bf4",
+      "type": "dropdown_multi",
+      "label": "területek: ",
+      "grid": {
+        "i": "9d0d35d9-59c8-4850-9872-21c4425f6bf4",
+        "x": 0,
+        "y": 11,
+        "w": 12,
+        "h": 1
+      },
+      "options": [
+        "tervezés",
+        "kivitelezés",
+        "értékesítés",
+        "fogyasztásmérés",
+        "szivárgásmérés",
+        "egyéb"
+      ]
+    },
+    {
+      "id": "947cfb57-2fff-4426-907c-3068bf20599f",
+      "type": "comment",
+      "label": "Megjegyzés",
+      "grid": {
+        "i": "947cfb57-2fff-4426-907c-3068bf20599f",
+        "x": 0,
+        "y": 12,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "b6715e4e-ba3a-4ae9-8342-5369dc3a0bf8",
+      "type": "title",
+      "label": "Karbantartás",
+      "grid": {
+        "i": "b6715e4e-ba3a-4ae9-8342-5369dc3a0bf8",
+        "x": 0,
+        "y": 13,
+        "w": 12,
+        "h": 1
+      }
+    },
+    {
+      "id": "94e91f7d-3045-46c0-8be2-8fc5cbc48876",
+      "type": "dropdown",
+      "label": "karbantartás:",
+      "grid": {
+        "i": "94e91f7d-3045-46c0-8be2-8fc5cbc48876",
+        "x": 0,
+        "y": 14,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "egyedi megrendelés",
+        "szerződés: átalánydíjas",
+        "szerződés: teljeskörű",
+        "szerződés: egyéb megoldás",
+        "egyéb"
+      ]
+    },
+    {
+      "id": "a5c83488-65d2-461c-9ffb-8f7184712998",
+      "type": "comment",
+      "label": "Megjegyzés",
+      "grid": {
+        "i": "a5c83488-65d2-461c-9ffb-8f7184712998",
+        "x": 0,
+        "y": 15,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "abeea24b-613f-4b55-815d-1e317b4a4751",
+      "type": "title",
+      "label": "Távfelügyelet",
+      "grid": {
+        "i": "abeea24b-613f-4b55-815d-1e317b4a4751",
+        "x": 0,
+        "y": 16,
+        "w": 12,
+        "h": 1
+      }
+    },
+    {
+      "id": "66ac19d5-44bc-40c4-bcbb-05ccb9f43d33",
+      "type": "dropdown",
+      "label": "távfelügyelet:",
+      "grid": {
+        "i": "66ac19d5-44bc-40c4-bcbb-05ccb9f43d33",
+        "x": 0,
+        "y": 17,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "van",
+        "nincs, de támogatná",
+        "nincs és nem támogatná"
+      ]
+    },
+    {
+      "id": "5011e7cd-6718-4894-99d9-1eefd23cbb20",
+      "type": "comment",
+      "label": "Megjegyzés",
+      "grid": {
+        "i": "5011e7cd-6718-4894-99d9-1eefd23cbb20",
+        "x": 0,
+        "y": 18,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "e2bb15f1-fd74-4e17-a578-bb113b0b0dd3",
+      "type": "title",
+      "label": "Szerviz szolgáltatói elégedettség",
+      "grid": {
+        "i": "e2bb15f1-fd74-4e17-a578-bb113b0b0dd3",
+        "x": 0,
+        "y": 19,
+        "w": 12,
+        "h": 1
+      }
+    },
+    {
+      "id": "c539d169-80e4-4527-bb9c-3e8ced973945",
+      "type": "title",
+      "label": "Adminisztráció",
+      "grid": {
+        "i": "c539d169-80e4-4527-bb9c-3e8ced973945",
+        "x": 0,
+        "y": 26,
+        "w": 12,
+        "h": 1
+      }
+    },
+    {
+      "id": "8f217491-8126-4157-9316-d9a825ade273",
+      "type": "dropdown",
+      "label": "elérhetőség:",
+      "grid": {
+        "i": "8f217491-8126-4157-9316-d9a825ade273",
+        "x": 0,
+        "y": 20,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "gyenge",
+        "közepes",
+        "jó",
+        "kiváló"
+      ]
+    },
+    {
+      "id": "8ed9ddbb-a9a0-4f08-bcb9-6c74bc9cf187",
+      "type": "dropdown",
+      "label": "megrendelés:",
+      "grid": {
+        "i": "8ed9ddbb-a9a0-4f08-bcb9-6c74bc9cf187",
+        "x": 0,
+        "y": 21,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "gyenge",
+        "közepes",
+        "jó",
+        "kiváló"
+      ]
+    },
+    {
+      "id": "877e5e40-8ab8-4855-b8cf-afaf9aacd1a2",
+      "type": "dropdown",
+      "label": "visszaigazolás gyorsasága:",
+      "grid": {
+        "i": "877e5e40-8ab8-4855-b8cf-afaf9aacd1a2",
+        "x": 0,
+        "y": 22,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "gyenge",
+        "közepes",
+        "jó",
+        "kiváló"
+      ]
+    },
+    {
+      "id": "359b0d0e-544d-495c-aec5-592d2d32ea32",
+      "type": "dropdown",
+      "label": "számlázás:",
+      "grid": {
+        "i": "359b0d0e-544d-495c-aec5-592d2d32ea32",
+        "x": 0,
+        "y": 23,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "gyenge",
+        "közepes",
+        "jó",
+        "kiváló"
+      ]
+    },
+    {
+      "id": "6d4c9a50-0290-4667-8935-860ea143fd1a",
+      "type": "dropdown",
+      "label": "átfutási idő:",
+      "grid": {
+        "i": "6d4c9a50-0290-4667-8935-860ea143fd1a",
+        "x": 0,
+        "y": 24,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "gyenge",
+        "közepes",
+        "jó",
+        "kiváló"
+      ]
+    },
+    {
+      "id": "2d87be24-5598-419e-a48a-b0ec32ce1249",
+      "type": "comment",
+      "label": "Megjegyzés",
+      "grid": {
+        "i": "2d87be24-5598-419e-a48a-b0ec32ce1249",
+        "x": 0,
+        "y": 25,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "5f2cbb28-dea0-4ac5-9a4e-bcdc0fac3cb3",
+      "type": "title",
+      "label": "szerelők felkészültsége",
+      "grid": {
+        "i": "5f2cbb28-dea0-4ac5-9a4e-bcdc0fac3cb3",
+        "x": 0,
+        "y": 27,
+        "w": 12,
+        "h": 1
+      }
+    },
+    {
+      "id": "5acd11ae-4c8f-4007-8e0d-9179419a25b7",
+      "type": "dropdown",
+      "label": "szakmai felkészültség:",
+      "grid": {
+        "i": "5acd11ae-4c8f-4007-8e0d-9179419a25b7",
+        "x": 0,
+        "y": 28,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "gyenge",
+        "közepes",
+        "jó",
+        "kiváló"
+      ]
+    },
+    {
+      "id": "6bab05e5-2fc9-427c-b689-efbb148b4e87",
+      "type": "comment",
+      "label": "Megjegyzés",
+      "grid": {
+        "i": "6bab05e5-2fc9-427c-b689-efbb148b4e87",
+        "x": 0,
+        "y": 29,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "89bcc6bc-8e21-401e-ad0a-9a9cb2382e23",
+      "type": "title",
+      "label": "Alkatrész ellátottság",
+      "grid": {
+        "i": "89bcc6bc-8e21-401e-ad0a-9a9cb2382e23",
+        "x": 0,
+        "y": 30,
+        "w": 12,
+        "h": 1
+      }
+    },
+    {
+      "id": "81d3fbb1-752a-4df0-b0d4-9820cbaffdbf",
+      "type": "dropdown",
+      "label": "alkatrészek szállítási ideje:",
+      "grid": {
+        "i": "81d3fbb1-752a-4df0-b0d4-9820cbaffdbf",
+        "x": 0,
+        "y": 31,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "gyenge",
+        "közepes",
+        "jó",
+        "kiváló"
+      ]
+    },
+    {
+      "id": "f37ae0ae-1c20-4863-92c4-63eab533d700",
+      "type": "comment",
+      "label": "Megjegyzés",
+      "grid": {
+        "i": "f37ae0ae-1c20-4863-92c4-63eab533d700",
+        "x": 0,
+        "y": 32,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "7b251f01-cede-452d-bd4b-683c2dadc379",
+      "type": "title",
+      "label": "Kiszállási idő",
+      "grid": {
+        "i": "7b251f01-cede-452d-bd4b-683c2dadc379",
+        "x": 0,
+        "y": 33,
+        "w": 12,
+        "h": 1
+      }
+    },
+    {
+      "id": "001b92f7-fd06-4d5d-b0e4-247346ad75d5",
+      "type": "text",
+      "label": "vállalt",
+      "grid": {
+        "i": "001b92f7-fd06-4d5d-b0e4-247346ad75d5",
+        "x": 0,
+        "y": 34,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "fea57598-ee59-403c-bc27-618e8e542de6",
+      "type": "text",
+      "label": "valós (tapasztalat alapján)",
+      "grid": {
+        "i": "fea57598-ee59-403c-bc27-618e8e542de6",
+        "x": 0,
+        "y": 35,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "70c6aa27-40e0-4042-a6cf-da72caadf443",
+      "type": "dropdown",
+      "label": "reagálás a hibajelentéstől",
+      "grid": {
+        "i": "70c6aa27-40e0-4042-a6cf-da72caadf443",
+        "x": 0,
+        "y": 36,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "gyenge",
+        "közepes",
+        "jó",
+        "kiváló"
+      ]
+    },
+    {
+      "id": "97417a3a-f6c3-4088-9e62-84ffacafebb3",
+      "type": "comment",
+      "label": "Megjegyzés",
+      "grid": {
+        "i": "97417a3a-f6c3-4088-9e62-84ffacafebb3",
+        "x": 0,
+        "y": 37,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "7cdd5e65-b363-4a9f-821f-1d9c4da04ab9",
+      "type": "title",
+      "label": "Hétvégi ügyelet",
+      "grid": {
+        "i": "7cdd5e65-b363-4a9f-821f-1d9c4da04ab9",
+        "x": 0,
+        "y": 38,
+        "w": 12,
+        "h": 1
+      }
+    },
+    {
+      "id": "e711b3d1-c91c-4d5e-89fa-f833971ebeb3",
+      "type": "dropdown",
+      "label": "ügyelet:",
+      "grid": {
+        "i": "e711b3d1-c91c-4d5e-89fa-f833971ebeb3",
+        "x": 0,
+        "y": 39,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "van",
+        "nincs",
+        "egyéb"
+      ]
+    },
+    {
+      "id": "13f4ebd3-b905-469e-b506-0ef8a24bed41",
+      "type": "comment",
+      "label": "Megjegyzés",
+      "grid": {
+        "i": "13f4ebd3-b905-469e-b506-0ef8a24bed41",
+        "x": 0,
+        "y": 40,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "84af74cd-bf56-41a8-a8de-a684eeb26a8c",
+      "type": "title",
+      "label": "Általános elégedettség",
+      "grid": {
+        "i": "84af74cd-bf56-41a8-a8de-a684eeb26a8c",
+        "x": 0,
+        "y": 41,
+        "w": 12,
+        "h": 1
+      }
+    },
+    {
+      "id": "220f67ed-32c2-4626-ab26-af632d3c74be",
+      "type": "dropdown",
+      "label": "elégedettség mértéke",
+      "grid": {
+        "i": "220f67ed-32c2-4626-ab26-af632d3c74be",
+        "x": 0,
+        "y": 42,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "gyenge",
+        "közepes",
+        "jó",
+        "kiváló"
+      ]
+    },
+    {
+      "id": "56561659-ec8a-4d4d-ba4f-4336e32a74fe",
+      "type": "comment",
+      "label": "Megjegyzés",
+      "grid": {
+        "i": "56561659-ec8a-4d4d-ba4f-4336e32a74fe",
+        "x": 0,
+        "y": 43,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    }
+  ]
+}

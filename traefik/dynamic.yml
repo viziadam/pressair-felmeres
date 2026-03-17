@@ -1,0 +1,11 @@
+tls:
+  certificates:
+    - certFile: /certs/pressair-local.crt
+      keyFile: /certs/pressair-local.key
+
+http:
+  middlewares:
+    redirect-to-https:
+      redirectScheme:
+        scheme: https
+        permanent: true

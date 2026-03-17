@@ -1,0 +1,573 @@
+{
+  "meta": {
+    "id": "c200fdc2-5728-4398-95da-0a166d590811",
+    "name": "Rendszer"
+  },
+  "elements": [
+    {
+      "id": "98246c2a-412a-48f8-aa68-248a9dfb7caf",
+      "type": "title",
+      "label": "Sűrített levegő rendszer berendezései",
+      "grid": {
+        "i": "98246c2a-412a-48f8-aa68-248a9dfb7caf",
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 1
+      },
+      "showNote": false,
+      "note": ""
+    },
+    {
+      "id": "3356dae3-cf7e-485b-9fd1-0bd74ee2fc48",
+      "type": "module_machine_simple",
+      "label": "Gép (egyszerű) modul",
+      "grid": {
+        "i": "3356dae3-cf7e-485b-9fd1-0bd74ee2fc48",
+        "x": 0,
+        "y": 1,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "instances": [
+        {
+          "id": "11150e23-8952-4d97-88c5-302ba3a5fbd9",
+          "title": "Kompresszor 1",
+          "open": true,
+          "machineType": "Kompresszor",
+          "fields": [
+            {
+              "key": "manufacturer",
+              "label": "Gyártó"
+            },
+            {
+              "key": "model",
+              "label": "Típus"
+            },
+            {
+              "key": "general_note",
+              "label": "Megjegyzés"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "9f7e3cd8-23ff-4796-9705-4c400f60cd9d",
+      "type": "sketch",
+      "label": "Sűrített levegő rendszer berendezéseinek elrendezése",
+      "grid": {
+        "i": "9f7e3cd8-23ff-4796-9705-4c400f60cd9d",
+        "x": 0,
+        "y": 2,
+        "w": 12,
+        "h": 1
+      },
+      "height": 260
+    },
+    {
+      "id": "a27b92b3-2edf-423e-9b4a-609d7d20e79a",
+      "type": "module_system_survey",
+      "label": "Rendszer (3.0–18.0) modul",
+      "grid": {
+        "i": "a27b92b3-2edf-423e-9b4a-609d7d20e79a",
+        "x": 0,
+        "y": 3,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "instances": [
+        {
+          "id": "e8dd6122-36b0-498f-9e20-6b1b96c4e5b9",
+          "index": 0,
+          "open": true,
+          "fields": [
+            {
+              "key": "3_consumption",
+              "label": "felhasznált mennyiség"
+            },
+            {
+              "key": "3_compressor_pmax",
+              "label": "kompresszorok maximális nyomása"
+            },
+            {
+              "key": "3_system_pressure",
+              "label": "rendszer nyomás"
+            },
+            {
+              "key": "3_user_pressure",
+              "label": "felhasználói nyomásigény"
+            },
+            {
+              "key": "3_iso_solid",
+              "label": "ISO 8573 – szilárd szennyeződés"
+            },
+            {
+              "key": "3_iso_dew",
+              "label": "ISO 8573 – nyomás alatti harmatpont"
+            },
+            {
+              "key": "3_iso_oil",
+              "label": "ISO 8573 – olajtartalom"
+            },
+            {
+              "key": "3_prob_flow",
+              "label": "Problémák – légszállítás"
+            },
+            {
+              "key": "3_prob_pressure",
+              "label": "Problémák – nyomás"
+            },
+            {
+              "key": "3_prob_solid",
+              "label": "Problémák – szilárd szennyeződés"
+            },
+            {
+              "key": "3_prob_dew",
+              "label": "Problémák – nyomás alatti harmatpont"
+            },
+            {
+              "key": "3_prob_oil",
+              "label": "Problémák – olajtartalom"
+            },
+            {
+              "key": "3_prob_noise",
+              "label": "Problémák – zajszint"
+            },
+            {
+              "key": "3_prob_other",
+              "label": "Problémák – egyéb megjegyzés"
+            },
+            {
+              "key": "4_age",
+              "label": "kora"
+            },
+            {
+              "key": "4_material",
+              "label": "anyaga"
+            },
+            {
+              "key": "4_size",
+              "label": "mérete"
+            },
+            {
+              "key": "4_indoor_only",
+              "label": "csak épületen belül"
+            },
+            {
+              "key": "4_outdoor_too",
+              "label": "épületen kívül is"
+            },
+            {
+              "key": "4_note",
+              "label": "egyéb megjegyzés"
+            },
+            {
+              "key": "5_drain_types",
+              "label": "leeresztések"
+            },
+            {
+              "key": "5_oil_water_sep",
+              "label": "olaj-víz szétválasztó"
+            },
+            {
+              "key": "5_tray",
+              "label": "kármentő tálca"
+            },
+            {
+              "key": "5_note",
+              "label": "egyéb megjegyzés"
+            },
+            {
+              "key": "6_status",
+              "label": "állapot"
+            },
+            {
+              "key": "6_uses",
+              "label": "felhasználás"
+            },
+            {
+              "key": "6_note",
+              "label": "egyéb megjegyzés"
+            },
+            {
+              "key": "7_status",
+              "label": "állapot"
+            },
+            {
+              "key": "7_features",
+              "label": "jellemzők"
+            },
+            {
+              "key": "7_note",
+              "label": "egyéb megjegyzés"
+            },
+            {
+              "key": "8_status",
+              "label": "állapot"
+            },
+            {
+              "key": "8_type",
+              "label": "típus"
+            },
+            {
+              "key": "8_eq_load",
+              "label": "van egyenlő kiterheltség szerint"
+            },
+            {
+              "key": "8_energy_opt",
+              "label": "van energiahatékonyság szerint"
+            },
+            {
+              "key": "9_status",
+              "label": "állapot"
+            },
+            {
+              "key": "9_note",
+              "label": "egyéb megjegyzés"
+            },
+            {
+              "key": "10_status",
+              "label": "állapot"
+            },
+            {
+              "key": "10_note",
+              "label": "egyéb megjegyzés"
+            },
+            {
+              "key": "11_status",
+              "label": "állapot"
+            },
+            {
+              "key": "11_note",
+              "label": "egyéb megjegyzés"
+            },
+            {
+              "key": "12_status",
+              "label": "állapot"
+            },
+            {
+              "key": "12_note",
+              "label": "egyéb megjegyzés"
+            },
+            {
+              "key": "13_place",
+              "label": "helyszín"
+            },
+            {
+              "key": "13_note",
+              "label": "egyéb megjegyzés"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "24bbe28f-9ef3-46d6-b8fe-cfcb1a289956",
+      "type": "title",
+      "label": "14.0 Rendszerfelügyelet, automatizálás",
+      "grid": {
+        "i": "24bbe28f-9ef3-46d6-b8fe-cfcb1a289956",
+        "x": 0,
+        "y": 4,
+        "w": 12,
+        "h": 1
+      },
+      "showNote": true,
+      "note": "rendszernyomás (nyomástérkép) - logolással; minőség mérés (részecske, nedvesség, olaj) - logolással; nyomás alatti harmatpont; sűrített levegő sebesség; rendszer automata szabályozása (pl. automata elzáró szerelvények nyitása-zárása a redundancia automata \"üzembe állításához\""
+    },
+    {
+      "id": "ba8c84ee-1141-46f0-9ea7-8835bb987d7f",
+      "type": "dropdown",
+      "label": "rendszerfelügyelet",
+      "grid": {
+        "i": "ba8c84ee-1141-46f0-9ea7-8835bb987d7f",
+        "x": 0,
+        "y": 5,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "van",
+        "nincs",
+        "nincs, de tervezik",
+        "egyéb megjegyzés"
+      ]
+    },
+    {
+      "id": "ae0315a8-c09e-4ade-8e3b-210826cdc85a",
+      "type": "comment",
+      "label": "Megjegyzés",
+      "grid": {
+        "i": "ae0315a8-c09e-4ade-8e3b-210826cdc85a",
+        "x": 0,
+        "y": 6,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "ba0adbc9-e24f-4d94-9ed4-4e5bd8a428fd",
+      "type": "title",
+      "label": "15.0 Rendszerdiagnosztikai mérések",
+      "grid": {
+        "i": "ba0adbc9-e24f-4d94-9ed4-4e5bd8a428fd",
+        "x": 0,
+        "y": 7,
+        "w": 12,
+        "h": 1
+      },
+      "showNote": false,
+      "note": ""
+    },
+    {
+      "id": "3a7302cd-619f-486a-85a2-4dde8f949b4d",
+      "type": "dropdown",
+      "label": "sűrített levegő fogyasztásmérés",
+      "grid": {
+        "i": "3a7302cd-619f-486a-85a2-4dde8f949b4d",
+        "x": 0,
+        "y": 8,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "van",
+        "nincs",
+        "nincs, de tervezik",
+        "egyéb megjegyzés"
+      ]
+    },
+    {
+      "id": "63dd831d-8e11-405a-9edc-03e0a077e78e",
+      "type": "dropdown",
+      "label": "N2 fogyasztásmérés",
+      "grid": {
+        "i": "63dd831d-8e11-405a-9edc-03e0a077e78e",
+        "x": 0,
+        "y": 9,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "van",
+        "nincs",
+        "nincs, de tervezik",
+        "egyéb megjegyzés"
+      ]
+    },
+    {
+      "id": "fcab4201-7f7d-49c4-9eb2-2122049c0553",
+      "type": "dropdown",
+      "label": "szivárgásmérés",
+      "grid": {
+        "i": "fcab4201-7f7d-49c4-9eb2-2122049c0553",
+        "x": 0,
+        "y": 10,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "van",
+        "nincs",
+        "nincs, de tervezik",
+        "egyéb megjegyzés"
+      ]
+    },
+    {
+      "id": "d8f1d3ca-877a-4bf7-ba51-ec35f15d5238",
+      "type": "comment",
+      "label": "Megjegyzés",
+      "grid": {
+        "i": "d8f1d3ca-877a-4bf7-ba51-ec35f15d5238",
+        "x": 0,
+        "y": 11,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "733d0853-959a-4350-b603-72084f50cb22",
+      "type": "title",
+      "label": "16.0 Folyamatos rendszeroptimalizálási tanácsadás",
+      "grid": {
+        "i": "733d0853-959a-4350-b603-72084f50cb22",
+        "x": 0,
+        "y": 12,
+        "w": 12,
+        "h": 1
+      },
+      "showNote": true,
+      "note": "a mért adatok alapján tanácsadás a berendezések átállításához; minőség mérés (részecske, nedvesség, olaj) - logolással, alapján karbantartási tanácsadások az energiahatékonyság biztosításához, javításához; termelésben, szolgáltatásban beállt változások optimálisabb kielégítése a rendszer működésének módosításával; beruházást megelőzően a meglévő rendszer kapacitásainak felülvizsgálata az üzembiztonság és energiahatékonyság fókuszából"
+    },
+    {
+      "id": "bb0207a3-03f9-4438-bd53-d28baa8e4253",
+      "type": "dropdown",
+      "label": "Legördülő",
+      "grid": {
+        "i": "bb0207a3-03f9-4438-bd53-d28baa8e4253",
+        "x": 0,
+        "y": 13,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "Opció 1",
+        "Opció 2"
+      ]
+    },
+    {
+      "id": "332e2879-862a-472d-afc9-06cb5e9d5c37",
+      "type": "comment",
+      "label": "Megjegyzés",
+      "grid": {
+        "i": "332e2879-862a-472d-afc9-06cb5e9d5c37",
+        "x": 0,
+        "y": 14,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "afc10a0e-7017-44b0-9066-842ee7f84ae9",
+      "type": "title",
+      "label": "17.0 Energiahatékonyság",
+      "grid": {
+        "i": "afc10a0e-7017-44b0-9066-842ee7f84ae9",
+        "x": 0,
+        "y": 15,
+        "w": 12,
+        "h": 1
+      },
+      "showNote": true,
+      "note": "rendelkeznek-e információval az energiahatékonyság javításának lehetőségeiről?; rendelkeznek-e információval az EKR rendszerről és TAO kedvezményekről?; rendelkeznek-e információval a szivárgási veszteségekről?"
+    },
+    {
+      "id": "f2bb15bb-4111-4772-9c43-aa18f4afd5f6",
+      "type": "text",
+      "label": "villamos áram díja [kW/Ft]",
+      "grid": {
+        "i": "f2bb15bb-4111-4772-9c43-aa18f4afd5f6",
+        "x": 0,
+        "y": 16,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "2665d770-df64-4088-8e00-f1299dbcb8a7",
+      "type": "text",
+      "label": "rendelkeznek-e adattal a sűrített levegő előállítási költségeiről [m3/x bar]",
+      "grid": {
+        "i": "2665d770-df64-4088-8e00-f1299dbcb8a7",
+        "x": 0,
+        "y": 17,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "2ebb0778-a41a-4f83-bd63-6a22521c8c37",
+      "type": "comment",
+      "label": "Megjegyzés",
+      "grid": {
+        "i": "2ebb0778-a41a-4f83-bd63-6a22521c8c37",
+        "x": 0,
+        "y": 18,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "e50bca61-5eac-406a-aa08-38a44e499cf5",
+      "type": "title",
+      "label": "18.0 Szolgáltatások amik érdekelhetik az Ügyfelet",
+      "grid": {
+        "i": "e50bca61-5eac-406a-aa08-38a44e499cf5",
+        "x": 0,
+        "y": 19,
+        "w": 12,
+        "h": 1
+      },
+      "showNote": false,
+      "note": ""
+    },
+    {
+      "id": "8a10c821-8f39-4807-9622-01d09cfaddc3",
+      "type": "dropdown_multi",
+      "label": "szolgáltatások",
+      "grid": {
+        "i": "8a10c821-8f39-4807-9622-01d09cfaddc3",
+        "x": 0,
+        "y": 20,
+        "w": 12,
+        "h": 1
+      },
+      "options": [
+        "koncepció terv",
+        "tervezés",
+        "kivitelezés",
+        "értékesítés",
+        "sűrített levegő fogyasztásmérés",
+        "N2 fogyasztásmérés",
+        "szivárgásmérés",
+        "sűrített levegő eladás",
+        "egyéb megjegyzés"
+      ]
+    },
+    {
+      "id": "5fe8f373-e0af-46e7-b1e0-48bb9be36017",
+      "type": "comment",
+      "label": "Megjegyzés",
+      "grid": {
+        "i": "5fe8f373-e0af-46e7-b1e0-48bb9be36017",
+        "x": 0,
+        "y": 21,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    }
+  ]
+}

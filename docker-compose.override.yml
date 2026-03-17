@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+  edge:
+    image: cloudflare/cloudflared:latest
+    container_name: yourapp-edge
+    command: tunnel --no-autoupdate --protocol http2 --url http://web:80
+    depends_on:
+      - web
+    restart: unless-stopped

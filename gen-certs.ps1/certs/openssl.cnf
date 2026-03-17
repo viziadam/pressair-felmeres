@@ -1,0 +1,17 @@
+[ req ]
+distinguished_name = dn
+x509_extensions = v3_req
+req_extensions = v3_req
+prompt = no
+
+[ dn ]
+CN = pressair.local
+
+[ v3_req ]
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = pressair.local
+IP.1  = 192.168.0.192

@@ -1,0 +1,115 @@
+{
+  "meta": {
+    "id": "3e397c10-9f59-4deb-ae3f-413da5d6ad52",
+    "name": "Rendszer"
+  },
+  "elements": [
+    {
+      "id": "47c38631-1edf-4cbd-b416-681346138767",
+      "type": "text",
+      "label": "Szöveg",
+      "grid": {
+        "i": "47c38631-1edf-4cbd-b416-681346138767",
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "67a9f14b-9dc4-4798-9f14-29e6a73345ad",
+      "type": "text",
+      "label": "Szöveg",
+      "grid": {
+        "i": "67a9f14b-9dc4-4798-9f14-29e6a73345ad",
+        "x": 0,
+        "y": 1,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "161db988-e872-4c3e-879f-715503231809",
+      "type": "text",
+      "label": "Szöveg",
+      "grid": {
+        "i": "161db988-e872-4c3e-879f-715503231809",
+        "x": 0,
+        "y": 2,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "14ccef2f-bcf3-4d84-a8dd-aa1a9e36cccc",
+      "type": "sketch",
+      "label": "Szabadkézi rajz",
+      "grid": {
+        "i": "14ccef2f-bcf3-4d84-a8dd-aa1a9e36cccc",
+        "x": 0,
+        "y": 6,
+        "w": 12,
+        "h": 1
+      },
+      "height": 260
+    },
+    {
+      "id": "690f7259-63dc-4495-91f6-66bd13962461",
+      "type": "dropdown",
+      "label": "Legördülő",
+      "grid": {
+        "i": "690f7259-63dc-4495-91f6-66bd13962461",
+        "x": 0,
+        "y": 3,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "Opció 1",
+        "Opció 2"
+      ]
+    },
+    {
+      "id": "a092df0c-0f03-42c3-b1f0-8c9fde3dab8a",
+      "type": "text",
+      "label": "Szöveg",
+      "grid": {
+        "i": "a092df0c-0f03-42c3-b1f0-8c9fde3dab8a",
+        "x": 0,
+        "y": 4,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "e070e967-951d-40ea-a05c-b44c095f5aae",
+      "type": "text",
+      "label": "Szöveg",
+      "grid": {
+        "i": "e070e967-951d-40ea-a05c-b44c095f5aae",
+        "x": 0,
+        "y": 5,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    }
+  ]
+}
