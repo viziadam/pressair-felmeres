@@ -1,0 +1,42 @@
+{
+  "meta": {
+    "id": "e4ad3f41-bc8f-4449-a759-59c958300956",
+    "name": "N2 ellátás felmérési jk"
+  },
+  "elements": [
+    {
+      "id": "64295707-f2b4-41f0-b340-f7ef53944bbf",
+      "type": "text",
+      "label": "Szöveg",
+      "grid": {
+        "i": "64295707-f2b4-41f0-b340-f7ef53944bbf",
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "85aebd78-9568-413a-805d-97f47c198924",
+      "type": "dropdown",
+      "label": "Legördülő",
+      "grid": {
+        "i": "85aebd78-9568-413a-805d-97f47c198924",
+        "x": 0,
+        "y": 1,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "options": [
+        "Opció 1",
+        "Opció 2"
+      ]
+    }
+  ]
+}
