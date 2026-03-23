@@ -1,0 +1,18 @@
+{
+  "id": "65e23dd3-e55c-4650-a197-3cd320221c28",
+  "globals": {
+    "companyName": "Próba",
+    "site": "példa",
+    "contactName": "xy",
+    "contactTitle": "xy",
+    "phone": "+36205141414",
+    "email": "kovacs@kft.hu",
+    "date": "2000-01-01",
+    "inspectorName": "Helloka"
+  },
+  "forms": [],
+  "answers": {},
+  "files": {},
+  "snapshots": [],
+  "updatedAt": "2026-03-18T11:40:38.858Z"
+}

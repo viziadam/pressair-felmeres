@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3.3"
 
 services:
   web:
@@ -34,4 +34,6 @@ services:
       # JWT_SECRET: ...
     expose:
       - "3001"
+    volumes:                    
+      - ./server/data:/app/server/data   
     restart: unless-stopped
