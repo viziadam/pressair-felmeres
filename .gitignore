@@ -35,3 +35,11 @@ coverage/
 
 # --- OpcionÃ¡lis: TypeScript build fÃ¡jlok ---
 *.tsbuildinfo
+
+# SSL Tanúsítványok
+certs/
+
+# Éles adatbázis és kitöltött felmérések
+server/data/surveys/
+server/data/locks.json
+server/data/index.json

@@ -10,17 +10,11 @@ services:
     depends_on:
       - backend
     ports:
-      # Itt mondjuk meg, hogy kívülről a 8087-es porton jöjjön be a forgalom, 
-      # amit a konténeren belül a 80-as (Nginx) portra irányítunk.
-      # A 0.0.0.0 azt jelenti, hogy a gép minden IP címén (így a 10.20.40.161-en is) hallgatni fog.
-      - "0.0.0.0:8087:80"
-      # - "0.0.0.0:4450:443" # Ezt hagyd kikommentezve, amíg nem állítod be a HTTPS-t
+      - "0.0.0.0:8087:443"    
     volumes:
-      # - ./dist:/usr/share/nginx/html:ro  <-- EZT VEDD KI! Különben tönkreteszi a multi-stage buildet!
       - ./server/src/offline/assets:/opt/assets:ro
-      - ./gen-certs.ps1/certs:/etc/nginx/certs:ro
+      - ./certs:/etc/nginx/certs:ro
     restart: unless-stopped
-
   backend:
     build:
       context: ./server

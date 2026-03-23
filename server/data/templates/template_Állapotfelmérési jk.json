@@ -1,0 +1,195 @@
+{
+  "meta": {
+    "id": "abc2451a-fa18-4185-b02d-fa485090fb3a",
+    "name": "Állapotfelmérési jk"
+  },
+  "elements": [
+    {
+      "id": "28fe0f17-b158-4393-8edf-8b99651c9165",
+      "type": "title",
+      "label": "Sűrített levegős rendszer gépeinek állapotfelmérése",
+      "grid": {
+        "i": "28fe0f17-b158-4393-8edf-8b99651c9165",
+        "x": 0,
+        "y": 0,
+        "w": 12,
+        "h": 1
+      },
+      "showNote": false,
+      "note": ""
+    },
+    {
+      "id": "c44b8727-eea8-4fbc-85f2-0e9c120cf5e0",
+      "type": "module_machine_detail",
+      "label": "Gép (részletes) modul",
+      "grid": {
+        "i": "c44b8727-eea8-4fbc-85f2-0e9c120cf5e0",
+        "x": 0,
+        "y": 1,
+        "w": 12,
+        "h": 1
+      },
+      "ink": {
+        "enabled": false
+      },
+      "instances": [
+        {
+          "id": "3814570e-eaf2-4c0a-b5a2-d580be2d802b",
+          "title": "Kompresszor 1",
+          "open": true,
+          "machineType": "Kompresszor",
+          "fields": [
+            {
+              "key": "manufacturer",
+              "label": "gyártó"
+            },
+            {
+              "key": "model",
+              "label": "típus"
+            },
+            {
+              "key": "pressure",
+              "label": "nyomás"
+            },
+            {
+              "key": "flow",
+              "label": "légszállítás"
+            },
+            {
+              "key": "year",
+              "label": "gyártási év"
+            },
+            {
+              "key": "serial",
+              "label": "gyártási szám"
+            },
+            {
+              "key": "hours_total",
+              "label": "összes üzemóra"
+            },
+            {
+              "key": "hours_load",
+              "label": "terhelt üzemóra"
+            },
+            {
+              "key": "hours_idle",
+              "label": "üresjárati üzemóra"
+            },
+            {
+              "key": "switch_cycles",
+              "label": "kapcsolási ciklus szám"
+            },
+            {
+              "key": "op_mode",
+              "label": "üzemelési jellemző (üzemi, tartalék)"
+            },
+            {
+              "key": "annual_run",
+              "label": "jellemző éves futásteljesítmény"
+            },
+            {
+              "key": "location",
+              "label": "üzemelési hely (központi kompresszor ház, eltérő üzemrészben, stb.)"
+            },
+            {
+              "key": "drive_motor",
+              "label": "meghajtómotor"
+            },
+            {
+              "key": "motor_power",
+              "label": "névleges teljesítmény"
+            },
+            {
+              "key": "efficiency",
+              "label": "energetikai hatékonyság"
+            },
+            {
+              "key": "power_factor",
+              "label": "teljesítmény tényező"
+            },
+            {
+              "key": "fan_motor",
+              "label": "hűtőventilátor motor"
+            },
+            {
+              "key": "fan_power",
+              "label": "névleges teljesítmény"
+            },
+            {
+              "key": "dryer_man",
+              "label": "beépített / ráépített szárító – gyártó"
+            },
+            {
+              "key": "dryer_model",
+              "label": "beépített / ráépített szárító – típus"
+            },
+            {
+              "key": "dryer_serial",
+              "label": "beépített / ráépített szárító – gyártási szám"
+            },
+            {
+              "key": "refrig",
+              "label": "hűtőközeg"
+            },
+            {
+              "key": "refrig_charge",
+              "label": "hűtőközeg töltetmennyiség"
+            },
+            {
+              "key": "operable",
+              "label": "üzemképesség"
+            },
+            {
+              "key": "vessel_man",
+              "label": "légtartály – gyártó"
+            },
+            {
+              "key": "vessel_size",
+              "label": "légtartály – méret"
+            },
+            {
+              "key": "vessel_pmax",
+              "label": "légtartály – maximális nyomás"
+            },
+            {
+              "key": "vessel_serial",
+              "label": "légtartály – gyártási szám"
+            },
+            {
+              "key": "vfd_make",
+              "label": "frekvenciaváltó gyártmánya"
+            },
+            {
+              "key": "panel_type",
+              "label": "vezérlő panel – típus"
+            },
+            {
+              "key": "panel_state",
+              "label": "vezérlő panel – állapot"
+            },
+            {
+              "key": "mt_policy",
+              "label": "karbantartás"
+            },
+            {
+              "key": "mt_docs",
+              "label": "karbantartási dokumentációk (munkalapok)"
+            },
+            {
+              "key": "mt_company",
+              "label": "karbantartást végző cég"
+            },
+            {
+              "key": "mt_last",
+              "label": "utolsó igazolt karbantartás dátuma"
+            },
+            {
+              "key": "working",
+              "label": "a berendezés működőképes"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
