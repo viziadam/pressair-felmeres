@@ -560,16 +560,356 @@
 // )
 // }
 
+// import { useEffect, useMemo, useRef, useState } from 'react'
+// import { useNavigate } from 'react-router-dom'
+// import {
+//   loadGlobals,
+//   saveAll, saveAnswers,
+//   loadAnswersLocal, saveAnswersLocal, saveAllLocal,
+//   computeCompletion, type Completion,
+//   getActiveSurveyId, setActiveSurveyId, pruneLocalToActive,
+//   setStrictLocalMode, bootstrapActiveFromServer,
+//   loadAnswersAsync, updateSurveyLocalOnly, saveSurveyLocal, nowIso, readSurvey, SurveyState
+// } from '../storage'
+
+// import { FormData, AnswerMap, Globals, EMPTY } from '../types'
+// import FormFillerEmbed from './FormFillerEmbed'
+// import { SURVEY_TABS } from '../constants'
+// import { pickRootDir, saveSurveyToFolder } from '../utils/fs'
+// import { loadTemplateForTab } from '../storage/formsLib'
+// import { releaseLock } from '../storage/clientLock';
+// import { buildSurveyBundle } from '../utils/exportBundle'
+// import { shareOrDownloadZip, writeBundleToFolder } from '../utils/exportOut'
+// import { sanitize, ensurePerms } from '../utils/fs'
+
+// // --- DESIGN RENDSZER (Ide is beemelve) ---
+// const formDesign = {
+//   card: { backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '16px', marginBottom: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
+//   btnSecondary: { backgroundColor: '#f9fafb', color: '#374151', border: '1px solid #e5e7eb', padding: '8px 14px', borderRadius: '6px', fontSize: '14px', fontWeight: 500, cursor: 'pointer' },
+//   btnDanger: { backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '6px', fontSize: '14px', fontWeight: 500, cursor: 'pointer' },
+//   btnSuccess: { backgroundColor: '#10b981', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '6px', fontSize: '14px', fontWeight: 500, cursor: 'pointer' },
+//   btnPrimary: { backgroundColor: '#2563eb', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '6px', fontSize: '14px', fontWeight: 500, cursor: 'pointer' },
+// };
+
+// function normalizeForms(fs: any[]): FormData[] {
+//   const clean = (fs || []).filter(Boolean).map((f: any) => {
+//       const next: any = { ...f }
+//       next.meta = next.meta || {}
+//       next.meta.id = String(next.meta.id || crypto.randomUUID())
+//       if (!Array.isArray(next.elements)) next.elements = []
+//       return next as FormData
+//     })
+//   const seen = new Set<string>()
+//   const dedup: FormData[] = []
+//   for (const f of clean) {
+//     const fid = String(f.meta.id)
+//     if (seen.has(fid)) continue
+//     seen.add(fid)
+//     dedup.push(f)
+//   }
+//   return dedup
+// }
+
+// export default function Surveys(){
+//   const nav = useNavigate()
+//   const [forms, setForms] = useState<FormData[]>([])
+//   const [active, setActive] = useState(0)
+//   const [answersMap, setAnswersMap] = useState<Record<string, AnswerMap>>({})
+//   const [globals, setGlobals] = useState<Globals>(EMPTY);
+//   const [busy, setBusy] = useState(false)
+//   const [activeAnswer, setActiveAnswer] = useState<AnswerMap>()
+//   const saveTimer = useRef<number | null>(null)
+//   const perFormSaveTimerRef = useRef<Record<string, number>>({});
+//   const lastSavedHashRef = useRef<Record<string, string>>({});
+//   const a4Refs = useRef<Record<string, HTMLDivElement | null>>({})
+
+//   useEffect(() => {
+//     let cancelled = false;
+//     (async () => {
+//       setStrictLocalMode(true)
+//       const activeId = getActiveSurveyId()
+//       let fs: FormData[] = []
+//       let answersFromServerOrLocal: Record<string, AnswerMap> = {}
+//       let globalsFrom: Globals | null = null
+
+//       let localSurvey: any = null
+//       try {
+//         const raw = activeId ? localStorage.getItem(`surveys/${activeId}`) : null
+//         localSurvey = raw ? JSON.parse(raw) : null
+//       } catch {}
+
+//       const hasLocalForms = Array.isArray(localSurvey?.forms) && localSurvey.forms.length > 0
+      
+//       if (hasLocalForms) {
+//         fs = localSurvey.forms as FormData[]
+//         answersFromServerOrLocal = (localSurvey.answers || {}) as Record<string, AnswerMap>
+//         globalsFrom = (localSurvey.globals || null) as Globals | null
+//       } else {
+//         let serverSurvey: any = null
+//         try {
+//           if (activeId) {
+//             const r = await fetch(`/api/surveys/${encodeURIComponent(activeId)}`, { credentials: 'same-origin' })
+//             if (r.ok) serverSurvey = await r.json()
+//           }
+//         } catch {}
+
+//         if (serverSurvey) {
+//           fs = (serverSurvey.forms || []) as FormData[]
+//           answersFromServerOrLocal = (serverSurvey.answers || {}) as Record<string, AnswerMap>
+//           globalsFrom = (serverSurvey.globals || null) as Globals | null
+//         } else {
+//           const seeded: FormData[] = []
+//           for (const tab of SURVEY_TABS) {
+//             const tpl = await loadTemplateForTab(tab)
+//             if (tpl) {
+//               const fixed = structuredClone(tpl)
+//               fixed.meta = { id: fixed.meta?.id || crypto.randomUUID(), name: tab }
+//               seeded.push(fixed)
+//             } else {
+//               seeded.push({ meta: { id: crypto.randomUUID(), name: tab }, elements: [] } as any)
+//             }
+//           }
+//           fs = seeded
+//           answersFromServerOrLocal = {}
+//         }
+//       }
+
+//       if (cancelled) return
+
+//       const cleanFs = normalizeForms(fs)
+
+//       {
+//         const id = getActiveSurveyId()
+//         if (id) {
+//           const cur = readSurvey(id) ?? { id, globals: EMPTY, forms: [], answers: {}, files: {}, snapshots: [], updatedAt: nowIso() }
+//           const next: SurveyState = { ...cur, forms: cleanFs, answers: (answersFromServerOrLocal || {}), globals: (globalsFrom ?? cur.globals), updatedAt: nowIso() }
+//           saveSurveyLocal(id, next)
+//         }
+//       }
+
+//       setForms(cleanFs)
+//       setAnswersMap(answersFromServerOrLocal || {})
+//       setGlobals(globalsFrom ?? loadGlobals())
+
+//       const activeIdx = Number.isFinite(active) ? active : 0
+//       const activeFormId = cleanFs[activeIdx]?.meta.id || cleanFs[0]?.meta.id
+//       const activeAns = activeFormId ? (answersFromServerOrLocal?.[activeFormId] || {}) : {}
+//       setActiveAnswer(activeAns)
+//     })()
+//     return () => { cancelled = true }
+//   }, [])
+
+//   const statuses = useMemo(() => {
+//     const s: Record<string, Completion> = {}
+//     forms.forEach(f => {
+//       if (!f || !f.meta?.id) return
+//       const fid = String(f.meta.id)
+//       const ans = answersMap[fid] || {}
+//       s[fid] = computeCompletion(f, ans)
+//     })
+//     return s
+//   }, [forms, answersMap])
+
+//   const activeForm = forms[active] || null
+
+//   useEffect(() => {
+//     if (!activeForm?.meta?.id) return
+//     const fid = String(activeForm.meta.id)
+//     const mem = answersMap[fid]
+//     if (mem && Object.keys(mem).length > 0) { setActiveAnswer(mem); return; }
+//     const local = loadAnswersLocal(fid) || {}
+//     setActiveAnswer(structuredClone(local))
+//   }, [activeForm?.meta?.id])
+
+//   function scheduleSnapshotSave() {
+//     if (saveTimer.current) window.clearTimeout(saveTimer.current)
+//     saveTimer.current = window.setTimeout(() => { saveTimer.current = null }, 100) as unknown as number
+//   }
+
+//   function onFormChange(next: FormData) {
+//     setForms(prev => {
+//       const updated = prev.map(f => f.meta.id === next.meta.id ? next : f)
+//       saveAllLocal(updated)
+//       scheduleSnapshotSave()
+//       return updated
+//     })
+//   }
+
+//   // function onAnswersChange(formId: string, ansPartial: AnswerMap){
+//   //   setAnswersMap(prev => {
+//   //     const old = prev[formId] || {};
+//   //     const partial = ansPartial || {};
+//   //     const changed = Object.keys(partial).some(k => old[k] !== partial[k]);
+//   //     if (!changed) return prev;
+
+//   //     const merged = { ...old, ...(ansPartial || {}) };
+//   //     const stable = structuredClone(merged);
+//   //     const next = { ...prev, [formId]: stable };
+//   //     saveAnswersLocal(formId, stable);
+
+//   //     if (perFormSaveTimerRef.current[formId]) window.clearTimeout(perFormSaveTimerRef.current[formId]);
+//   //     perFormSaveTimerRef.current[formId] = window.setTimeout(() => {
+//   //       const json = JSON.stringify(merged);
+//   //       if (lastSavedHashRef.current[formId] === json) return;
+//   //       lastSavedHashRef.current[formId] = json;
+//   //       saveAnswersLocal(formId, merged);
+//   //       perFormSaveTimerRef.current[formId] = 0 as any;
+//   //     }, 150) as unknown as number;
+
+//   //     return next;
+//   //   });
+//   // }
+
+//   function onAnswersChange(formId: string, ansPartial: AnswerMap){
+//   setAnswersMap(prev => {
+//     const old = prev[formId] || {};
+//     // Ha semmi sem változott, ne is dolgozzunk
+//     const changed = Object.keys(ansPartial).some(k => old[k] !== ansPartial[k]);
+//     if (!changed) return prev;
+
+//     const merged = { ...old, ...ansPartial };
+    
+//     // Azonnali mentés memóriába (React state)
+//     const next = { ...prev, [formId]: merged };
+
+//     // Késleltetett mentés a LocalStorage-ba (Ne fagyasszuk le a UI-t gépelés közben)
+//     if (perFormSaveTimerRef.current[formId]) window.clearTimeout(perFormSaveTimerRef.current[formId]);
+//     perFormSaveTimerRef.current[formId] = window.setTimeout(() => {
+//       try {
+//         saveAnswersLocal(formId, merged);
+//       } catch (e: any) {
+//         if (e.name === 'QuotaExceededError') alert('Figyelem: Megtelt a helyi tárhely!');
+//       }
+//     }, 500) as unknown as number; // 150ms túl gyors, 500ms biztonságosabb
+
+//     return next;
+//   });
+// }
+
+//   function colorClass(c: any){
+//     return c === 'done' ? 'done' : c === 'progress' ? 'progress' : 'empty'
+//   }
+
+//   async function finishToFolder(){
+//     if (!globals.companyName.trim()) { alert('Előbb add meg a cég nevét a kezdő oldalon.'); nav('/'); return; }
+//     try {
+//       const root = await pickRootDir()
+//       if (!activeForm) { alert('Nincs aktív űrlap.'); return; }
+//       const fid = String(activeForm.meta.id)
+//       const onlyThisForm = [activeForm]
+//       const onlyThisAnswersMap = { [fid]: answersMap[fid] || {} }
+//       const onlyThisDom: Record<string, HTMLDivElement | null> = { [fid]: a4Refs.current[fid] || null }
+//       await saveSurveyToFolder(root, globals, onlyThisForm, onlyThisAnswersMap, onlyThisDom, 'visual')
+//       alert(`Elmentve: ${activeForm.meta.name}.pdf`)
+//     } catch (e) {
+//       console.error(e); alert('Mentési hiba.')
+//     }
+//   }
+
+//   // async function saveAllToServer() {
+//   //   try {
+//   //     setBusy(true)
+//   //     await saveAll(forms)
+//   //     alert('Mentve a szerverre.')
+//   //   } catch (e) {
+//   //     console.error(e); alert('Szerver mentési hiba.')
+//   //   } finally {
+//   //     setBusy(false)
+//   //   }
+//   // }
+
+//   async function saveAllToServer() {
+//     try {
+//       setBusy(true)
+//       // Átadjuk mind a 3 dolgot a React state-ből!
+//       await saveAll(forms, answersMap, globals)
+//       alert('Sikeresen mentve a szerverre!')
+//     } catch (e) {
+//       console.error(e); 
+//       alert('Szerver mentési hiba! Ellenőrizd az internetkapcsolatot.')
+//     } finally {
+//       setBusy(false)
+//     }
+//   }
+
+//   function exitToHome() {
+//     if (saveTimer.current) { window.clearTimeout(saveTimer.current); saveTimer.current = null; }
+//     const id = getActiveSurveyId()
+//     if (id) {
+//       releaseLock(id);
+//       try { localStorage.removeItem(`surveys/${id}`) } catch {}
+//     }
+//     try { pruneLocalToActive() } catch {}
+//     setActiveSurveyId(null)
+//     nav('/')
+//   }
+
+//   const activeFormId = activeForm?.meta.id
+//   const handleRootRef = (formId: string, el: HTMLDivElement | null) => { a4Refs.current[formId] = el }
+
+//   return (
+//     <>
+//       <div style={{ ...formDesign.card, marginBottom: '24px' }}>
+//         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+//           <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: '#111827' }}>Felmérések</h2>
+//           <div style={{ display: 'flex', gap: '8px' }}>
+//             <button style={formDesign.btnSecondary} onClick={saveAllToServer} disabled={busy}>{busy ? 'Mentés…' : 'Mentés (szerverre)'}</button>
+//             <button style={formDesign.btnSuccess} onClick={finishToFolder} disabled={busy}>{busy ? 'Mentés…' : 'Befejezés (PDF)'}</button>
+//             <button style={formDesign.btnDanger} onClick={exitToHome}>Kilépés</button>
+//           </div>
+//         </div>
+
+//         {/* Letisztult tab sáv */}
+//         <div style={{ display: 'flex', gap: '12px', borderBottom: '2px solid #f3f4f6', overflowX: 'auto', paddingBottom: '2px' }}>
+//           {forms.map((f, i) => {
+//             const isActive = i === active;
+//             const statusColor = statuses[f.meta.id] === 'done' ? '#10b981' : statuses[f.meta.id] === 'progress' ? '#f59e0b' : '#d1d5db';
+            
+//             return (
+//               <button
+//                 key={f.meta.id}
+//                 onClick={() => setActive(i)}
+//                 style={{
+//                   background: 'none', border: 'none', cursor: 'pointer', padding: '8px 12px',
+//                   fontSize: '14px', fontWeight: isActive ? 600 : 500,
+//                   color: isActive ? '#2563eb' : '#6b7280',
+//                   borderBottom: isActive ? '2px solid #2563eb' : '2px solid transparent',
+//                   marginBottom: '-4px', display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap'
+//                 }}
+//               >
+//                 <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: statusColor }} />
+//                 {f.meta.name}
+//               </button>
+//             )
+//           })}
+//         </div>
+//       </div>
+
+//       {(!activeFormId || activeAnswer == null) ? (
+//         <div style={{ textAlign: 'center', color: '#6b7280', padding: '40px 0' }}>Nincs aktív felmérés.</div>
+//       ) : (
+//         <FormFillerEmbed
+//           key={activeFormId}
+//           formId={activeFormId}
+//           initialForm={activeForm!}
+//           onAnswersChange={(ans)=> onAnswersChange(activeFormId, ans)}
+//           onFormChange={onFormChange}
+//           activeAnswer={activeAnswer!}
+//           globals={globals}
+//           onRootRef={handleRootRef}
+//         />
+//       )}
+//     </>
+//   )
+// }
+
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  loadGlobals,
-  saveAll, saveAnswers,
-  loadAnswersLocal, saveAnswersLocal, saveAllLocal,
+  loadGlobals, saveAll, saveAnswersLocal, saveAllLocal,
   computeCompletion, type Completion,
   getActiveSurveyId, setActiveSurveyId, pruneLocalToActive,
-  setStrictLocalMode, bootstrapActiveFromServer,
-  loadAnswersAsync, updateSurveyLocalOnly, saveSurveyLocal, nowIso, readSurvey, SurveyState
+  setStrictLocalMode, readSurvey, SurveyState, nowIso
 } from '../storage'
 
 import { FormData, AnswerMap, Globals, EMPTY } from '../types'
@@ -578,17 +918,16 @@ import { SURVEY_TABS } from '../constants'
 import { pickRootDir, saveSurveyToFolder } from '../utils/fs'
 import { loadTemplateForTab } from '../storage/formsLib'
 import { releaseLock } from '../storage/clientLock';
-import { buildSurveyBundle } from '../utils/exportBundle'
-import { shareOrDownloadZip, writeBundleToFolder } from '../utils/exportOut'
-import { sanitize, ensurePerms } from '../utils/fs'
 
-// --- DESIGN RENDSZER (Ide is beemelve) ---
+// --- DESIGN RENDSZER ---
 const formDesign = {
   card: { backgroundColor: '#fff', border: '1px solid #e5e7eb', borderRadius: '8px', padding: '16px', marginBottom: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.05)' },
   btnSecondary: { backgroundColor: '#f9fafb', color: '#374151', border: '1px solid #e5e7eb', padding: '8px 14px', borderRadius: '6px', fontSize: '14px', fontWeight: 500, cursor: 'pointer' },
   btnDanger: { backgroundColor: '#ef4444', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '6px', fontSize: '14px', fontWeight: 500, cursor: 'pointer' },
   btnSuccess: { backgroundColor: '#10b981', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '6px', fontSize: '14px', fontWeight: 500, cursor: 'pointer' },
   btnPrimary: { backgroundColor: '#2563eb', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '6px', fontSize: '14px', fontWeight: 500, cursor: 'pointer' },
+  // Új gombdizájn az Exportáláshoz
+  btnWarning: { backgroundColor: '#f59e0b', color: '#fff', border: 'none', padding: '8px 14px', borderRadius: '6px', fontSize: '14px', fontWeight: 500, cursor: 'pointer' }
 };
 
 function normalizeForms(fs: any[]): FormData[] {
@@ -618,9 +957,7 @@ export default function Surveys(){
   const [globals, setGlobals] = useState<Globals>(EMPTY);
   const [busy, setBusy] = useState(false)
   const [activeAnswer, setActiveAnswer] = useState<AnswerMap>()
-  const saveTimer = useRef<number | null>(null)
   const perFormSaveTimerRef = useRef<Record<string, number>>({});
-  const lastSavedHashRef = useRef<Record<string, string>>({});
   const a4Refs = useRef<Record<string, HTMLDivElement | null>>({})
 
   useEffect(() => {
@@ -678,15 +1015,6 @@ export default function Surveys(){
 
       const cleanFs = normalizeForms(fs)
 
-      {
-        const id = getActiveSurveyId()
-        if (id) {
-          const cur = readSurvey(id) ?? { id, globals: EMPTY, forms: [], answers: {}, files: {}, snapshots: [], updatedAt: nowIso() }
-          const next: SurveyState = { ...cur, forms: cleanFs, answers: (answersFromServerOrLocal || {}), globals: (globalsFrom ?? cur.globals), updatedAt: nowIso() }
-          saveSurveyLocal(id, next)
-        }
-      }
-
       setForms(cleanFs)
       setAnswersMap(answersFromServerOrLocal || {})
       setGlobals(globalsFrom ?? loadGlobals())
@@ -717,20 +1045,18 @@ export default function Surveys(){
     const fid = String(activeForm.meta.id)
     const mem = answersMap[fid]
     if (mem && Object.keys(mem).length > 0) { setActiveAnswer(mem); return; }
-    const local = loadAnswersLocal(fid) || {}
-    setActiveAnswer(structuredClone(local))
+    
+    // Load local fallback
+    const raw = localStorage.getItem(`surveys/${getActiveSurveyId()}`)
+    const loc = raw ? JSON.parse(raw) : null
+    const formAns = loc?.answers?.[fid] || {}
+    setActiveAnswer(structuredClone(formAns))
   }, [activeForm?.meta?.id])
-
-  function scheduleSnapshotSave() {
-    if (saveTimer.current) window.clearTimeout(saveTimer.current)
-    saveTimer.current = window.setTimeout(() => { saveTimer.current = null }, 100) as unknown as number
-  }
 
   function onFormChange(next: FormData) {
     setForms(prev => {
       const updated = prev.map(f => f.meta.id === next.meta.id ? next : f)
       saveAllLocal(updated)
-      scheduleSnapshotSave()
       return updated
     })
   }
@@ -738,30 +1064,23 @@ export default function Surveys(){
   function onAnswersChange(formId: string, ansPartial: AnswerMap){
     setAnswersMap(prev => {
       const old = prev[formId] || {};
-      const partial = ansPartial || {};
-      const changed = Object.keys(partial).some(k => old[k] !== partial[k]);
+      const changed = Object.keys(ansPartial).some(k => old[k] !== ansPartial[k]);
       if (!changed) return prev;
 
-      const merged = { ...old, ...(ansPartial || {}) };
-      const stable = structuredClone(merged);
-      const next = { ...prev, [formId]: stable };
-      saveAnswersLocal(formId, stable);
+      const merged = { ...old, ...ansPartial };
+      const next = { ...prev, [formId]: merged };
 
       if (perFormSaveTimerRef.current[formId]) window.clearTimeout(perFormSaveTimerRef.current[formId]);
       perFormSaveTimerRef.current[formId] = window.setTimeout(() => {
-        const json = JSON.stringify(merged);
-        if (lastSavedHashRef.current[formId] === json) return;
-        lastSavedHashRef.current[formId] = json;
-        saveAnswersLocal(formId, merged);
-        perFormSaveTimerRef.current[formId] = 0 as any;
-      }, 150) as unknown as number;
+        try {
+          saveAnswersLocal(formId, merged);
+        } catch (e: any) {
+          if (e.name === 'QuotaExceededError') alert('Figyelem: Megtelt a helyi tárhely!');
+        }
+      }, 500) as unknown as number;
 
       return next;
     });
-  }
-
-  function colorClass(c: any){
-    return c === 'done' ? 'done' : c === 'progress' ? 'progress' : 'empty'
   }
 
   async function finishToFolder(){
@@ -783,17 +1102,66 @@ export default function Surveys(){
   async function saveAllToServer() {
     try {
       setBusy(true)
-      await saveAll(forms)
-      alert('Mentve a szerverre.')
+      await saveAll(forms, answersMap, globals)
+      alert('Sikeresen mentve a szerverre!')
     } catch (e) {
-      console.error(e); alert('Szerver mentési hiba.')
+      console.error(e); 
+      alert('Szerver mentési hiba! Ellenőrizd az internetkapcsolatot.')
     } finally {
       setBusy(false)
     }
   }
 
+  // --- ÚJ FUNKCIÓ: Lokális Biztonsági Mentés (Export) ---
+  function exportLocalSurveys() {
+    try {
+      const surveysToExport: SurveyState[] = [];
+      
+      // Végigiterálunk a localStorage-on, és kimentünk minden survey-t
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('surveys/') && key !== 'surveys/__active__' && key !== 'surveys/__index__') {
+          const raw = localStorage.getItem(key);
+          if (raw) {
+            surveysToExport.push(JSON.parse(raw));
+          }
+        }
+      }
+
+      if (surveysToExport.length === 0) {
+        alert("Nincs mit exportálni. A helyi tárhely üres.");
+        return;
+      }
+
+      // Előállítjuk a JSON-t
+      const dataStr = JSON.stringify(surveysToExport, null, 2);
+      
+      // Blob készítése (ez garantálja, hogy mobilon fájlként töltődik le, nem nyílik meg sima szövegként)
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      // Fájlnév: datum-időpont.json
+      const dateStr = new Date().toISOString().slice(0,10);
+      const filename = `pressair_offline_mentes_${dateStr}.json`;
+
+      // Láthatatlan link trükk a letöltéshez (mobil és asztali kompatibilis)
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Takarítás
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      
+    } catch (err) {
+      console.error("Export hiba:", err);
+      alert("Hiba történt az adatok kimentésekor!");
+    }
+  }
+
   function exitToHome() {
-    if (saveTimer.current) { window.clearTimeout(saveTimer.current); saveTimer.current = null; }
     const id = getActiveSurveyId()
     if (id) {
       releaseLock(id);
@@ -810,9 +1178,11 @@ export default function Surveys(){
   return (
     <>
       <div style={{ ...formDesign.card, marginBottom: '24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '8px' }}>
           <h2 style={{ margin: 0, fontSize: '20px', fontWeight: 700, color: '#111827' }}>Felmérések</h2>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <button style={formDesign.btnWarning} onClick={exportLocalSurveys}>Mentés eszközre (Offline Export)</button>
             <button style={formDesign.btnSecondary} onClick={saveAllToServer} disabled={busy}>{busy ? 'Mentés…' : 'Mentés (szerverre)'}</button>
             <button style={formDesign.btnSuccess} onClick={finishToFolder} disabled={busy}>{busy ? 'Mentés…' : 'Befejezés (PDF)'}</button>
             <button style={formDesign.btnDanger} onClick={exitToHome}>Kilépés</button>

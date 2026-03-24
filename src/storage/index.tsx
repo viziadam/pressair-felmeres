@@ -450,17 +450,75 @@ export function loadAll(): any[] {
   })
   return s?.forms ?? []
 }
-export function saveAll(forms: any[]) {
-  const id = getActiveSurveyId()
-  if (!id) return
-  const s = readSurvey(id)
-  if (!s) return
-  s.forms = forms
-  saveSurvey(id, s) // lokális + szerver tükör
+// export function saveAll(forms: any[]) {
+//   const id = getActiveSurveyId()
+//   if (!id) return
+//   const s = readSurvey(id)
+//   if (!s) return
+//   s.forms = forms
+//   saveSurvey(id, s) // lokális + szerver tükör
 
-  // postJSON(`${API_BASE}/surveys/${encodeURIComponent(id)}/forms`, forms).then(()=>{
-  //   refreshIndex().catch(()=>{})
-  // })
+//   // postJSON(`${API_BASE}/surveys/${encodeURIComponent(id)}/forms`, forms).then(()=>{
+//   //   refreshIndex().catch(()=>{})
+//   // })
+// }
+
+export async function saveAll(forms: any[], answersMap: Record<string, any>, globals: Globals) {
+  const id = getActiveSurveyId();
+  if (!id) throw new Error("Nincs aktív felmérés.");
+
+  // 1. Kiolvassuk a régit (hogy a files/snapshots megmaradjon, ha van)
+  let s = readSurvey(id);
+  if (!s) {
+    s = {
+      id,
+      globals: EMPTY,
+      forms: [],
+      answers: {},
+      files: {},
+      snapshots: [],
+      updatedAt: nowIso()
+    };
+  }
+
+  // 2. FELÜLÍRJUK a paraméterben kapott, garantáltan friss React memóriából!
+  s.forms = forms;
+  s.answers = answersMap;
+  s.globals = globals;
+  s.updatedAt = nowIso();
+
+  // 3. Megpróbáljuk elmenteni lokálisan (ha van még hely a böngészőben)
+  try {
+    writeSurvey(s);
+    
+    // Index frissítése
+    const idx = readIndex();
+    const i = idx.findIndex(x => x.id === id);
+    const item: SurveySummary = {
+      id,
+      companyName: s.globals?.companyName || 'Névtelen cég',
+      updatedAt: s.updatedAt,
+      formCount: Array.isArray(s.forms) ? s.forms.length : 0
+    };
+    if (i >= 0) idx[i] = item;
+    else idx.push(item);
+    writeIndex(idx);
+  } catch (e: any) {
+    // Ha megtelt a LocalStorage, itt elkapjuk, de NEM állítjuk meg a futást!
+    console.warn("Helyi mentés nem sikerült (talán betelt a tárhely), de a szerverre küldés folytatódik!", e);
+  }
+
+  // 4. KÜLDÉS A SZERVERRE a tökéletesen friss csomaggal
+  const result = await postJSON(`${API_BASE}/surveys/${encodeURIComponent(id)}`, s);
+  
+  if (!result) {
+    throw new Error("Szerver hiba történt a mentés során.");
+  }
+  
+  // Opcionálisan frissítjük az indexet a szerverről
+  refreshIndex().catch(()=>{});
+
+  return result;
 }
 export function save(form: any) {
   const id = getActiveSurveyId()
