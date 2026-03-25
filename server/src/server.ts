@@ -647,6 +647,49 @@ app.delete('/api/surveys/:id/lock', async (req, res) => {
 //   }
 // });
 
+// =====================================================================
+// EXPLICIT OFFLINE FÁJL KISZOLGÁLÓ (A '<' hiba végleges megölése)
+// =====================================================================
+app.get(["/sw.js", "/sw-register.js", "/manifest.webmanifest"], async (req: Request, res: Response) => {
+  const fileName = req.path.replace('/', '');
+  
+  // Végigkutatjuk a Docker konténer összes létező zugát, ahova a build tehette
+  const possiblePaths = [
+    path.join(process.cwd(), "src", "offline", "assets", fileName),
+    path.join(process.cwd(), "server", "src", "offline", "assets", fileName),
+    path.join(__dirname, "offline", "assets", fileName),
+    path.join(__dirname, "..", "offline", "assets", fileName),
+    path.join(distDir, fileName),
+    path.join(distDir, "public", fileName)
+  ];
+
+  for (const p of possiblePaths) {
+    try {
+      const content = await fs.readFile(p, "utf8");
+      
+      // Ha megvan, kőkeményen beállítjuk a helyes fejlécet!
+      if (fileName.endsWith('.js')) {
+        res.setHeader("Content-Type", "application/javascript; charset=utf-8");
+      } else if (fileName.endsWith('.webmanifest')) {
+        res.setHeader("Content-Type", "application/manifest+json; charset=utf-8");
+      }
+      res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+      
+      console.log(`[OFFLINE] Kiszolgálva: ${fileName} innen: ${p}`);
+      return res.send(content);
+    } catch (e) {
+      // Itt nincs meg, nézzük a következő mappát...
+    }
+  }
+
+  // HA SEHOL SINCS MEG A DOCKERBEN:
+  // Kőkemény 404-et adunk. Így a kérés ITT MEGÁLL, nem megy tovább a HTML generáló 
+  // catch-all blokkba, és a böngésző SOHA TÖBBÉ nem kap '<' karaktert JS helyett!
+  console.error(`[OFFLINE ERROR] KRITIKUS: Nem találom a fájlt a Dockerben: ${fileName}`);
+  res.status(404).type("text/plain").send(`File not found: ${fileName}`);
+});
+// =====================================================================
+
 app.get("*", async (req: Request, res: Response, next: NextFunction) => {
   // *** VÉDŐHÁLÓ: EZ MENT MEG A '<' HIBÁTÓL! ***
   // Ha a böngésző egy fájlt keres (pl. .js, .webmanifest), de az express.static nem 
