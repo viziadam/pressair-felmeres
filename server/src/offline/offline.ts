@@ -3,15 +3,31 @@
 // server/src/offline/offline.ts
 import express, { type Request, type Response, type NextFunction, type Router } from "express";
 import path from "node:path";
+import fs from "node:fs";
 
-// CommonJS: van __dirname
-const assetsDir = path.join(__dirname, "assets");
+// --- GOLYÓÁLLÓ ÚTVONAL KERESŐ ---
+// Mivel a TypeScript (tsc) nem másolja át a .js és .webmanifest fájlokat a dist mappába,
+// meg kell keresnünk az eredeti 'src' mappát a Docker konténeren belül.
+let assetsDir = path.join(__dirname, "assets"); // Fallback
+
+const possiblePaths = [
+  path.resolve(process.cwd(), "src", "offline", "assets"),           // Ha a WORKDIR a /server mappa
+  path.resolve(process.cwd(), "server", "src", "offline", "assets"), // Ha a WORKDIR a projekt gyökér
+  path.join(__dirname, "..", "..", "src", "offline", "assets")       // Relatív útvonal a dist/offline-ból
+];
+
+for (const p of possiblePaths) {
+  if (fs.existsSync(p)) {
+    assetsDir = p;
+    break;
+  }
+}
+
+console.log("[OFFLINE] SW Assets könyvtár megtalálva:", assetsDir);
+
 const isProd = process.env.NODE_ENV === "production";
 
-/**
- * (Opcionális) HTML injektor – ha használod, inkább külső regisztrálót linkeljen
- * Megjegyzés: nálatok a server.ts catch-all már injektál, ez akár el is hagyható.
- */
+// ... INNENTŐL A FÁJL TÖBBI RÉSZE VÁLTOZATLANUL MARAD (offlineInjector, offlineRoutes stb.) ...
 export function offlineInjector() {
   return (req: Request, res: Response, next: NextFunction) => {
     const originalSend = res.send.bind(res);
