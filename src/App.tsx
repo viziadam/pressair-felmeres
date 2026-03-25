@@ -35,6 +35,13 @@ import { useEffect } from 'react'
 
 export default function App() {
 
+  window.addEventListener('online', () => {
+  if (navigator.serviceWorker.controller) {
+    console.log("Újra online vagyunk! Beragadt adatok szinkronizálása...");
+    navigator.serviceWorker.controller.postMessage("replay-outbox");
+  }
+});
+
   useEffect(() => { removeLegacySingleTemplate() }, [])
 
   const nav = useNavigate()

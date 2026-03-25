@@ -538,7 +538,7 @@ const PORT = Number(process.env.PORT || 5174)
 // app.use(offlineInjector());
 
 // 2) SW és manifest kiszolgálása (egyből az offline/assets-ből)
-app.use(offlineRoutes());
+// app.use(offlineRoutes());
 
 
 app.use(cors())
@@ -557,10 +557,12 @@ app.use((req, _res, next) => {
 });
 
 // 4) CSAK az asseteket szolgáljuk ki statikusan (nem az egész dist-et!)
-app.use("/assets", express.static(path.join(distDir, "assets"), {
-  immutable: true,
-  maxAge: "1y"
-}));
+// app.use("/assets", express.static(path.join(distDir, "assets"), {
+//   immutable: true,
+//   maxAge: "1y"
+// }));
+
+app.use(express.static(distDir, { index: false }));
 
 // ====== Fájlrendszer elérési utak ======
 const dataRoot = path.resolve(process.cwd(), "server", "data")
