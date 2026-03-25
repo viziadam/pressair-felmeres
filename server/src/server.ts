@@ -87,7 +87,7 @@ const PORT = Number(process.env.PORT || 5174)
 // app.use(offlineInjector());
 
 // 2) SW és manifest kiszolgálása (egyből az offline/assets-ből)
-app.use(offlineRoutes());
+// app.use(offlineRoutes());
 
 
 app.use(cors())
@@ -621,7 +621,41 @@ app.delete('/api/surveys/:id/lock', async (req, res) => {
 
 // 6) SPA catch-all: index.html beolvasás + SW/manifest injektálás
 // 6) SPA catch-all: index.html beolvasás + SW/manifest injektálás
-app.get("*", async (_req: Request, res: Response, next: NextFunction) => {
+// app.get("*", async (_req: Request, res: Response, next: NextFunction) => {
+//   try {
+//     const indexPath = path.join(distDir, "index.html");
+//     let html = await fs.readFile(indexPath, "utf8");
+
+//     const injection = `
+// <link rel="manifest" href="/manifest.webmanifest">
+// <script src="/sw-register.js?v=${Date.now()}"></script>`.trim();
+
+//     const before = html.length;
+//     html = html.replace(/<\/head>/i, `${injection}\n</head>`);
+//     const after = html.length;
+
+//     // nyomkövető header + log, hogy TÉNYLEG történt-e csere
+//     const injected = after !== before;
+//     res.setHeader("X-SW-Injection", injected ? "1" : "0");
+//     console.log(`[HTML] Injection ${injected ? "OK" : "MISS"} (len ${before} -> ${after})`);
+
+//     res.setHeader("Content-Type", "text/html; charset=utf-8");
+//     res.setHeader("Cache-Control", "no-cache"); // index.html ne cache-elődjön
+//     res.send(html);
+//   } catch (err) {
+//     next(err);
+//   }
+// });
+
+app.get("*", async (req: Request, res: Response, next: NextFunction) => {
+  // *** VÉDŐHÁLÓ: EZ MENT MEG A '<' HIBÁTÓL! ***
+  // Ha a böngésző egy fájlt keres (pl. .js, .webmanifest), de az express.static nem 
+  // találta meg a dist-ben, akkor AZ A FÁJL NINCS OTT. Ilyenkor azonnal 404-et 
+  // kell adni, hogy soha ne küldjünk HTML-t egy JavaScript fájl helyett!
+  if (req.url.match(/\.(js|json|webmanifest|ico|png|css)(\?.*)?$/i)) {
+    return res.status(404).send("File not found");
+  }
+
   try {
     const indexPath = path.join(distDir, "index.html");
     let html = await fs.readFile(indexPath, "utf8");
@@ -634,18 +668,18 @@ app.get("*", async (_req: Request, res: Response, next: NextFunction) => {
     html = html.replace(/<\/head>/i, `${injection}\n</head>`);
     const after = html.length;
 
-    // nyomkövető header + log, hogy TÉNYLEG történt-e csere
     const injected = after !== before;
     res.setHeader("X-SW-Injection", injected ? "1" : "0");
-    console.log(`[HTML] Injection ${injected ? "OK" : "MISS"} (len ${before} -> ${after})`);
 
     res.setHeader("Content-Type", "text/html; charset=utf-8");
-    res.setHeader("Cache-Control", "no-cache"); // index.html ne cache-elődjön
+    res.setHeader("Cache-Control", "no-cache"); 
     res.send(html);
   } catch (err) {
     next(err);
   }
 });
+
+
 // ====== Indítás ======
 // app.listen(PORT, () => {
 //   console.log(`API listening on http://localhost:${PORT} (NODE_ENV=${process.env.NODE_ENV || "development"})`);
