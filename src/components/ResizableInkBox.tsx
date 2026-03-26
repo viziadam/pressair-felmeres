@@ -156,7 +156,7 @@
 //   );
 // }
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import InlineInkCanvas from './InlineInkCanvas';
 
 type Props = {
@@ -175,6 +175,11 @@ export default function ResizableInkBox({
   const containerRef = useRef<HTMLDivElement>(null);
   const appliedInitial = useRef(false);
 
+  // Átméretezés (Drag) állapotok
+  const isDragging = useRef(false);
+  const startPos = useRef({ x: 0, y: 0 });
+  const startSize = useRef({ w: 0, h: 0 });
+
   // 1. Kezdeti mentett méret visszaállítása
   useEffect(() => {
     if (containerRef.current && !appliedInitial.current) {
@@ -188,63 +193,90 @@ export default function ResizableInkBox({
     }
   }, [initialRect, minHeight]);
 
-  // 2. Az okos szinkronizáció
-  useEffect(() => {
+  // 2. A Canvas felbontásának véglegesítése (Csak átméretezés UTÁN fut le!)
+  const finalizeResize = useCallback(() => {
     const container = containerRef.current;
     if (!container) return;
-
     const canvas = container.querySelector('canvas');
     if (!canvas) return;
 
-    let resizeTimeout: ReturnType<typeof setTimeout>;
-    const tempCanvas = document.createElement('canvas');
-    const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+    const rect = container.getBoundingClientRect();
+    const targetW = Math.round(rect.width);
+    const targetH = Math.round(rect.height);
 
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        const targetW = Math.round(entry.contentRect.width);
-        const targetH = Math.round(entry.contentRect.height);
-
-        // Ha a méret fizikailag megváltozott a húzástól
-        if (targetW > 0 && targetH > 0 && (canvas.width !== targetW || canvas.height !== targetH)) {
-          
-          // A: Gyors másolat a memóriába
-          tempCanvas.width = canvas.width;
-          tempCanvas.height = canvas.height;
-          if (tempCtx) {
-            tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
-            tempCtx.drawImage(canvas, 0, 0);
-          }
-
-          // B: Megadjuk a Canvasnak az új felbontást
-          canvas.width = targetW;
-          canvas.height = targetH;
-
-          // C: Visszamásoljuk az eredeti rajzot
-          const ctx = canvas.getContext('2d');
-          if (ctx) {
-            ctx.drawImage(tempCanvas, 0, 0);
-          }
-
-          // D: Mentés debouncelva
-          clearTimeout(resizeTimeout);
-          resizeTimeout = setTimeout(() => {
-            if (onRectChange) onRectChange({ w: targetW, h: targetH });
-            if (onChange) onChange(canvas.toDataURL());
-          }, 300);
-        }
+    if (targetW > 0 && targetH > 0 && (canvas.width !== targetW || canvas.height !== targetH)) {
+      // Biztonsági mentés
+      const tempCanvas = document.createElement('canvas');
+      const tempCtx = tempCanvas.getContext('2d', { willReadFrequently: true });
+      tempCanvas.width = canvas.width;
+      tempCanvas.height = canvas.height;
+      
+      if (tempCtx) {
+        tempCtx.drawImage(canvas, 0, 0);
       }
-    });
 
-    observer.observe(container);
+      // Új felbontás
+      canvas.width = targetW;
+      canvas.height = targetH;
 
+      // Visszaállítás
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(tempCanvas, 0, 0);
+      }
+
+      // Mentés a React state-be
+      if (onRectChange) onRectChange({ w: targetW, h: targetH });
+      if (onChange) onChange(canvas.toDataURL());
+    }
+  }, [onChange, onRectChange]);
+
+
+  // 3. EGYEDI ÁTMÉRETEZŐ LOGIKA (Mobil/Tablet kompatibilis)
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault(); // Megakadályozzuk az oldal görgetését
+    e.stopPropagation(); // Ne adjuk át a canvasnak a kattintást
+    
+    isDragging.current = true;
+    startPos.current = { x: e.clientX, y: e.clientY };
+    
+    const rect = containerRef.current!.getBoundingClientRect();
+    startSize.current = { w: rect.width, h: rect.height };
+
+    document.addEventListener('pointermove', handlePointerMove);
+    document.addEventListener('pointerup', handlePointerUp);
+  };
+
+  const handlePointerMove = (e: PointerEvent) => {
+    if (!isDragging.current || !containerRef.current) return;
+    
+    // Új méret számolása
+    const newW = Math.max(200, startSize.current.w + (e.clientX - startPos.current.x));
+    const newH = Math.max(minHeight, startSize.current.h + (e.clientY - startPos.current.y));
+
+    // Csak a dobozt (CSS) méretezzük át, a Canvas pixeljeit még békén hagyjuk!
+    containerRef.current.style.width = `${newW}px`;
+    containerRef.current.style.height = `${newH}px`;
+  };
+
+  const handlePointerUp = () => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    
+    document.removeEventListener('pointermove', handlePointerMove);
+    document.removeEventListener('pointerup', handlePointerUp);
+
+    // Amikor elengedte az ujját/tollát, VÉGREHAJTJUK a canvas minőségi átméretezését
+    finalizeResize();
+  };
+
+  // Biztonsági takarítás, ha a komponens megszűnne húzás közben
+  useEffect(() => {
     return () => {
-      observer.disconnect();
-      clearTimeout(resizeTimeout);
-      tempCanvas.width = 0;
-      tempCanvas.height = 0;
+      document.removeEventListener('pointermove', handlePointerMove);
+      document.removeEventListener('pointerup', handlePointerUp);
     };
-  }, [onRectChange, onChange]);
+  }, []);
 
   return (
     <div
@@ -253,7 +285,7 @@ export default function ResizableInkBox({
       style={{
         position: 'relative',
         marginTop: '8px',
-        resize: 'both',
+        // 'resize: both' KIVÉVE, mert átvettük az irányítást!
         overflow: 'hidden',
         border: '1px solid #cbd5e1',
         borderRadius: '8px',
@@ -263,8 +295,7 @@ export default function ResizableInkBox({
         minHeight: `${minHeight}px`,
         display: 'flex',
         flexDirection: 'column',
-        // MOBIL ÉRINTÉS VÉDELEM 1: Ez megakadályozza, hogy a böngésző görgessen, amikor ezen a div-en húzzák az ujjukat.
-        touchAction: 'none'
+        touchAction: 'none' // Nincs görgetés ezen a felületen
       }}
     >
       <button
@@ -283,24 +314,34 @@ export default function ResizableInkBox({
         ×
       </button>
 
+      {/* AZ ÚJ MOBIL/EGÉR ÁTMÉRETEZŐ FÜL */}
+      <div
+        onPointerDown={handlePointerDown}
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          right: 0,
+          width: '32px',
+          height: '32px',
+          cursor: 'nwse-resize',
+          zIndex: 20,
+          // Egy diszkrét szürke sáv a sarokban, hogy látszódjon, hol kell húzni
+          background: 'linear-gradient(135deg, transparent 50%, #94a3b8 50%)',
+          borderBottomRightRadius: '7px' // illeszkedik a dobozhoz
+        }}
+      />
+
       <style>{`
-        /* MOBIL KIJELÖLÉS VÉDELEM 2: Ne lehessen a tartalmat kijelölni hosszas lenyomással */
         .single-resizable-viewport {
-          -webkit-touch-callout: none; /* iOS Safari hosszas nyomás menü */
-          -webkit-user-select: none;   /* Safari */
-          -moz-user-select: none;      /* Firefox */
-          -ms-user-select: none;       /* Internet Explorer/Edge */
-          user-select: none;           /* Szabványos CSS */
+          user-select: none;
+          -webkit-user-select: none;
         }
-        
-        .single-resizable-viewport > div { 
-          resize: none !important; 
+        /* Csak a belső canvas containert nyújtjuk, a gombot és a fület nem */
+        .single-resizable-viewport > div:last-of-type { 
           width: 100% !important; 
           height: 100% !important; 
           flex: 1; 
         }
-        
-        /* A canvasra is ráerőltetjük az érintésvédelmet */
         .single-resizable-viewport canvas { 
           width: 100% !important; 
           height: 100% !important; 
@@ -313,7 +354,7 @@ export default function ResizableInkBox({
         value={value}
         onChange={onChange}
         initialRect={initialRect}
-        onRectChange={() => {}} // Mi intézzük a ResizeObserverben az új logikával!
+        onRectChange={() => {}} 
         emitInitialRect={emitInitialRect}
       />
     </div>
