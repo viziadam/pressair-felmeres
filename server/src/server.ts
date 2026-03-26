@@ -21,20 +21,40 @@ import { offlineInjector, offlineRoutes } from "./offline/offline";
 // ====== Típusok – egyezzenek a frontend storage/index.ts típusaival ======
 export type Completion = 'done' | 'progress' | 'empty'
 
+// export type SurveyState = {
+//   id: string
+//   globals: {
+//     companyName: string
+//     site: string
+//     phone: string
+//     email: string
+//     logoDataUrl?: string
+//   }
+//   forms: any[]                    // FormData[]
+//   answers: Record<string, any>    // formId -> AnswerMap
+//   files?: Record<string, any>
+//   snapshots?: any[]
+//   updatedAt: string               // ISO datetime
+// }
+
 export type SurveyState = {
   id: string
   globals: {
     companyName: string
     site: string
+    contactName?: string      // <-- ÚJ
+    contactTitle?: string     // <-- ÚJ
     phone: string
     email: string
+    date?: string             // <-- ÚJ
+    inspectorName?: string    // <-- ÚJ
     logoDataUrl?: string
   }
-  forms: any[]                    // FormData[]
-  answers: Record<string, any>    // formId -> AnswerMap
+  forms: any[]                    
+  answers: Record<string, any>    
   files?: Record<string, any>
   snapshots?: any[]
-  updatedAt: string               // ISO datetime
+  updatedAt: string               
 }
 
 export type SurveySummary = {
@@ -42,6 +62,10 @@ export type SurveySummary = {
   companyName: string
   updatedAt: string
   formCount: number
+  // A KEZDŐLAPHOZ SZÜKSÉGES PLUSZ MEZŐK:
+  inspectorName?: string
+  site?: string
+  contactName?: string
 }
 
 type SurveyLock = {
@@ -74,9 +98,14 @@ function safeCompanyDir(name: string) {
 function oldSurveyDirById(id: string) { return path.join(dataRoot, 'surveys', id) }
 function oldSurveyJsonPath(id: string) { return path.join(oldSurveyDirById(id), 'survey.json') }
 
-// ÚJ: cég-alapú survey.json útvonal (globálból számoljuk)
-function surveyJsonPathByCompany(companyName: string) {
-  return path.join(safeCompanyDir(companyName), 'survey.json');
+// // ÚJ: cég-alapú survey.json útvonal (globálból számoljuk)
+// function surveyJsonPathByCompany(companyName: string) {
+//   return path.join(safeCompanyDir(companyName), 'survey.json');
+// }
+
+// BIZTONSÁGOS: cég-alapú könyvtár, benne EGYEDI fájlnévvel (id.json)
+function surveyJsonPathByCompanyAndId(companyName: string, id: string) {
+  return path.join(safeCompanyDir(companyName), `${id}.json`);
 }
 
 // ====== Express alap ======
@@ -179,53 +208,86 @@ function surveyJsonPath(id: string) { return path.join(surveyDir(id), "survey.js
 // }
 
 async function readSurvey(id: string): Promise<SurveyState | null> {
-  // 1) próbáljuk index alapján kinyerni a cégnevet
   const idx = await readIndex();
   const it = idx.find(x => x.id === id);
   if (it && it.companyName) {
-    const p = surveyJsonPathByCompany(it.companyName);
+    const p = surveyJsonPathByCompanyAndId(it.companyName, id); // <-- JAVÍTVA
     const s = await readJSON<SurveyState>(p, null as any);
     if (s && s.id === id) return s;
   }
-  // 2) fallback: keressük meg lemezen id szerint
   return await findSurveyByIdOnDisk(id);
 }
 
-// async function writeSurvey(state: SurveyState) {
-//   await writeJSON(surveyJsonPath(state.id), state)
-//   await upsertIndexItem(state)
-// }
-
 async function writeSurvey(state: SurveyState) {
-  const targetPath = surveyJsonPathByCompany(state.globals?.companyName || '');
+  const targetPath = surveyJsonPathByCompanyAndId(state.globals?.companyName || 'Névtelen', state.id); // <-- JAVÍTVA
   await writeJSON(targetPath, state);
-  await upsertIndexItem(state); // indexet is naprakészen tartjuk
+  await upsertIndexItem(state);
 }
 
-// async function deleteSurveyDisk(id: string) {
-//   try { await fs.rm(surveyDir(id), { recursive: true, force: true }) } catch {}
-//   await removeIndexItem(id)
-// }
-
 async function deleteSurveyDisk(id: string) {
-  // Megkeressük lemezen (kezeli a céges mappát és a legacy id-mappát is)
   const s = await findSurveyByIdOnDisk(id);
-
-  // Ha cégnév alapján tárolt, töröljük a céges mappát
   try {
     if (s && s.globals?.companyName) {
-      const companyDir = safeCompanyDir(s.globals.companyName); // .../surveys/<slug>
-      await fs.rm(companyDir, { recursive: true, force: true });
+      // Csak az adott egyedi fájlt töröljük, nem a komplett cégmappát!
+      const targetPath = surveyJsonPathByCompanyAndId(s.globals.companyName, id);
+      await fs.rm(targetPath, { force: true });
     }
   } catch {}
-
-  // Legacy: az id-alapú mappát is töröljük, ha létezne
-  try {
-    await fs.rm(surveyDir(id), { recursive: true, force: true });
-  } catch {}
-
-  // Indexből kivesszük
+  try { await fs.rm(surveyDir(id), { recursive: true, force: true }); } catch {}
   await removeIndexItem(id);
+}
+
+async function rebuildIndexFromDisk(): Promise<SurveySummary[]> {
+  const dirs = await listCompanyDirs();
+  const items: SurveySummary[] = [];
+  for (const d of dirs) {
+    // Végig kell iterálnunk a cégmappa ÖSSZES fájlján (mert most már id.json-ok vannak)
+    const files = await fs.readdir(d, { withFileTypes: true }).catch(() => []);
+    for (const file of files) {
+      if (file.isFile() && file.name.endsWith('.json')) {
+        try {
+          const p = path.join(d, file.name);
+          const raw = await fs.readFile(p, 'utf8');
+          const s = JSON.parse(raw) as SurveyState;
+          if (s && typeof s.id === 'string') {
+            items.push({
+              id: s.id,
+              companyName: s.globals?.companyName || 'Névtelen cég',
+              updatedAt: s.updatedAt || nowIso(),
+              formCount: Array.isArray(s.forms) ? s.forms.length : 0,
+              inspectorName: s.globals?.inspectorName,
+              site: s.globals?.site,
+              contactName: s.globals?.contactName
+            });
+          }
+        } catch {}
+      }
+    }
+  }
+  items.sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
+  return items;
+}
+
+async function findSurveyByIdOnDisk(id: string): Promise<SurveyState | null> {
+  const dirs = await listCompanyDirs();
+  for (const d of dirs) {
+    // Megpróbáljuk célzottan az id.json-t beolvasni abból a mappából
+    const targetPath = path.join(d, `${id}.json`);
+    try {
+       const raw = await fs.readFile(targetPath, 'utf8');
+       const s = JSON.parse(raw) as SurveyState;
+       if (s && s.id === id) return s;
+    } catch {}
+  }
+  const legacy = await readJSON<SurveyState>(oldSurveyJsonPath(id), null as any);
+  if (legacy && legacy.id === id) {
+    const newP = surveyJsonPathByCompanyAndId(legacy.globals?.companyName || 'Névtelen', id); // <-- JAVÍTVA
+    await writeJSON(newP, legacy);
+    await upsertIndexItem(legacy);
+    try { await fs.rm(oldSurveyDirById(id), { recursive: true, force: true }) } catch {}
+    return legacy;
+  }
+  return null;
 }
 
 // ----- Template fájlok -----
@@ -258,44 +320,44 @@ async function readSurveyFromCompanyDir(dir: string): Promise<SurveyState | null
 }
 
 // --- teljes rebuild: végigmegy az összes cég-mappán és SurveySummary listát épít
-async function rebuildIndexFromDisk(): Promise<SurveySummary[]> {
-  const dirs = await listCompanyDirs();
-  const items: SurveySummary[] = [];
-  for (const d of dirs) {
-    const s = await readSurveyFromCompanyDir(d);
-    if (s) {
-      items.push({
-        id: s.id,
-        companyName: s.globals?.companyName || 'Névtelen cég',
-        updatedAt: s.updatedAt || nowIso(),
-        formCount: Array.isArray(s.forms) ? s.forms.length : 0,
-      });
-    }
-  }
-  // rendezés legfrissebb elöl
-  items.sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
-  return items;
-}
+// async function rebuildIndexFromDisk(): Promise<SurveySummary[]> {
+//   const dirs = await listCompanyDirs();
+//   const items: SurveySummary[] = [];
+//   for (const d of dirs) {
+//     const s = await readSurveyFromCompanyDir(d);
+//     if (s) {
+//       items.push({
+//         id: s.id,
+//         companyName: s.globals?.companyName || 'Névtelen cég',
+//         updatedAt: s.updatedAt || nowIso(),
+//         formCount: Array.isArray(s.forms) ? s.forms.length : 0,
+//       });
+//     }
+//   }
+//   // rendezés legfrissebb elöl
+//   items.sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
+//   return items;
+// }
 
 // --- fallback: ha nem találjuk index alapján, keressük meg a lemezen id szerint
-async function findSurveyByIdOnDisk(id: string): Promise<SurveyState | null> {
-  const dirs = await listCompanyDirs();
-  for (const d of dirs) {
-    const s = await readSurveyFromCompanyDir(d);
-    if (s && s.id === id) return s;
-  }
-  // régi id-alapú tárolás támogatása (legacy)
-  const legacy = await readJSON<SurveyState>(oldSurveyJsonPath(id), null as any);
-  if (legacy && legacy.id === id) {
-    // migráció: mentsük át az új céges helyre és frissítsük az indexet
-    const newP = surveyJsonPathByCompany(legacy.globals?.companyName || '');
-    await writeJSON(newP, legacy);
-    await upsertIndexItem(legacy);
-    try { await fs.rm(oldSurveyDirById(id), { recursive: true, force: true }) } catch {}
-    return legacy;
-  }
-  return null;
-}
+// async function findSurveyByIdOnDisk(id: string): Promise<SurveyState | null> {
+//   const dirs = await listCompanyDirs();
+//   for (const d of dirs) {
+//     const s = await readSurveyFromCompanyDir(d);
+//     if (s && s.id === id) return s;
+//   }
+//   // régi id-alapú tárolás támogatása (legacy)
+//   const legacy = await readJSON<SurveyState>(oldSurveyJsonPath(id), null as any);
+//   if (legacy && legacy.id === id) {
+//     // migráció: mentsük át az új céges helyre és frissítsük az indexet
+//     const newP = surveyJsonPathByCompany(legacy.globals?.companyName || '');
+//     await writeJSON(newP, legacy);
+//     await upsertIndexItem(legacy);
+//     try { await fs.rm(oldSurveyDirById(id), { recursive: true, force: true }) } catch {}
+//     return legacy;
+//   }
+//   return null;
+// }
 
 // ==== In-memory lock tároló (egyszerű DEV/PROD single-instance megoldáshoz) ====
 type LockRec = { lockedBy: string; expiresAt: number };

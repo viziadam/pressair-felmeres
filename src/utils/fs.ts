@@ -1,204 +1,4 @@
-// import type { FormData, AnswerMap, GlobalInfo } from '../types'
-// import { buildPdfs, type SurveySnapshot } from './pdf'
 
-// export async function pickRootDir(): Promise<FileSystemDirectoryHandle> {
-//   // @ts-ignore
-//   const handle: FileSystemDirectoryHandle = await (window as any).showDirectoryPicker({
-//     id: 'felmeres-root',
-//     mode: 'readwrite'
-//   })
-//   return handle
-// }
-
-// export async function ensurePerms(dir: FileSystemDirectoryHandle, mode: 'read'|'readwrite'='readwrite'){
-//   // @ts-ignore
-//   const q = await (dir as any).queryPermission?.({ mode }) ?? 'granted'
-//   if (q === 'granted') return
-//   // @ts-ignore
-//   const r = await (dir as any).requestPermission?.({ mode })
-//   if (r !== 'granted') throw new Error('A mappa-engedély szükséges.')
-// }
-
-// export async function listCompanyFolders(root: FileSystemDirectoryHandle): Promise<string[]> {
-//   const out: string[] = []
-//   // @ts-ignore
-//   for await (const [name, handle] of (root as any).entries?.() || []) {
-//     if ((handle as any).kind === 'directory') out.push(name)
-//   }
-//   out.sort()
-//   return out
-// }
-
-// function sanitize(name: string){
-//   return name.replace(/[\\/:*?"<>|]+/g, '_').trim()
-// }
-
-// export async function saveSurveyToFolder(
-//   root: FileSystemDirectoryHandle,
-//   globals: GlobalInfo,
-//   forms: FormData[],
-//   answersMaps: Record<string, AnswerMap>
-// ){
-//   await ensurePerms(root, 'readwrite')
-
-//   const folderName = sanitize(globals.companyName || 'Ismeretlen')
-//   const companyDir = await root.getDirectoryHandle(folderName, { create: true })
-
-//   // ⬇⬇⬇ ASYNC buildPdfs + Blob írás
-//   const pdfs = await buildPdfs(globals, forms, answersMaps)
-//   for (const [fname, u8] of Object.entries(pdfs)) {
-//     const fileHandle = await companyDir.getFileHandle(fname, { create: true })
-//     const ws = await fileHandle.createWritable()
-
-//     // Uint8Array -> ArrayBuffer -> Blob (TS kompatibilis)
-//     const ab: ArrayBuffer = (u8 as Uint8Array).buffer.slice(
-//       (u8 as Uint8Array).byteOffset,
-//       (u8 as Uint8Array).byteOffset + (u8 as Uint8Array).byteLength
-//     ) as ArrayBuffer
-//     const pdfBlob = new Blob([ab], { type: 'application/pdf' })
-
-//     await ws.write(pdfBlob)
-//     await ws.close()
-//   }
-
-//   // survey.json (globál + válaszok)
-//   const snapshot: SurveySnapshot = {
-//     globals,
-//     answersMaps,
-//     formIds: forms.map(f => f.meta.id),
-//     savedAt: new Date().toISOString()
-//   }
-//   const jsonHandle = await companyDir.getFileHandle('survey.json', { create: true })
-//   const js = await jsonHandle.createWritable()
-//   await js.write(new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' }))
-//   await js.close()
-// }
-
-// export async function loadSurveyFromFolder(
-//   root: FileSystemDirectoryHandle,
-//   companyFolderName: string
-// ): Promise<SurveySnapshot | null> {
-//   try {
-//     const dir = await root.getDirectoryHandle(companyFolderName, { create: false })
-//     const fh = await dir.getFileHandle('survey.json', { create: false })
-//     const file = await fh.getFile()
-//     const text = await file.text()
-//     return JSON.parse(text) as SurveySnapshot
-//   } catch {
-//     return null
-//   }
-// }
-
-// import type { FormData, AnswerMap, Globals } from '../types'
-// import { buildPdfs } from './pdf'
-// import { buildPdfsExact } from './pdfDom'
-
-// // JSON snapshot a PDF-ek mellé
-// export type SurveySnapshot = {
-//   globals: Globals
-//   answersMaps: Record<string, AnswerMap>
-//   formIds: string[]
-//   savedAt: string
-// }
-
-// // ====== Fájlrendszer helper-ek =================================
-// export async function pickRootDir(): Promise<FileSystemDirectoryHandle> {
-//   // @ts-ignore
-//   const handle: FileSystemDirectoryHandle = await (window as any).showDirectoryPicker({
-//     id: 'felmeres-root',
-//     mode: 'readwrite'
-//   })
-//   return handle
-// }
-
-// export async function ensurePerms(
-//   dir: FileSystemDirectoryHandle,
-//   mode: 'read'|'readwrite' = 'readwrite'
-// ){
-//   // @ts-ignore
-//   const q = await (dir as any).queryPermission?.({ mode }) ?? 'granted'
-//   if (q === 'granted') return
-//   // @ts-ignore
-//   const r = await (dir as any).requestPermission?.({ mode })
-//   if (r !== 'granted') throw new Error('A mappa-engedély szükséges.')
-// }
-
-// export async function listCompanyFolders(root: FileSystemDirectoryHandle): Promise<string[]> {
-//   const out: string[] = []
-//   // @ts-ignore
-//   for await (const [name, handle] of (root as any).entries?.() || []) {
-//     if ((handle as any).kind === 'directory') out.push(name)
-//   }
-//   out.sort()
-//   return out
-// }
-
-// function sanitize(name: string){
-//   return (name || '')
-//     .replace(/[\\/:*?"<>|]+/g, '_')
-//     .replace(/\s+/g, ' ')
-//     .trim()
-// }
-
-// // ====== Mentés: PDF-ek + survey.json ===========================
-// export async function saveSurveyToFolder(
-//   root: FileSystemDirectoryHandle,
-//   globals: Globals,
-//   forms: FormData[],
-//   answersMaps: Record<string, AnswerMap>
-// ){
-//   await ensurePerms(root, 'readwrite')
-
-//   const folderName = sanitize(globals.companyName || 'Ismeretlen')
-//   const companyDir = await root.getDirectoryHandle(folderName, { create: true })
-
-//   // PDF-ek építése (UI-val megegyező rács + fix fejléc + Unicode font)
-//   const pdfs = await buildPdfs(globals, forms, answersMaps)
-//   // const pdfs = await buildPdfsExact(globals, forms, answersMaps);
-
-//   for (const [fname, u8] of Object.entries(pdfs)) {
-//     const safeName = sanitize(fname) || 'lap.pdf'
-//     const fileHandle = await companyDir.getFileHandle(safeName, { create: true })
-//     const ws = await fileHandle.createWritable()
-
-//     const ab: ArrayBuffer = (u8 as Uint8Array).buffer.slice(
-//       (u8 as Uint8Array).byteOffset,
-//       (u8 as Uint8Array).byteOffset + (u8 as Uint8Array).byteLength
-//     ) as ArrayBuffer
-//     const pdfBlob = new Blob([ab], { type: 'application/pdf' })
-
-//     await ws.write(pdfBlob)
-//     await ws.close()
-//   }
-
-//   // survey.json
-//   const snapshot: SurveySnapshot = {
-//     globals,
-//     answersMaps,
-//     formIds: forms.map(f => f.meta.id),
-//     savedAt: new Date().toISOString()
-//   }
-//   const jsonHandle = await companyDir.getFileHandle('survey.json', { create: true })
-//   const js = await jsonHandle.createWritable()
-//   await js.write(new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' }))
-//   await js.close()
-// }
-
-// // ====== Betöltés: survey.json olvasás ==========================
-// export async function loadSurveyFromFolder(
-//   root: FileSystemDirectoryHandle,
-//   companyFolderName: string
-// ): Promise<SurveySnapshot | null> {
-//   try {
-//     const dir = await root.getDirectoryHandle(companyFolderName, { create: false })
-//     const fh = await dir.getFileHandle('survey.json', { create: false })
-//     const file = await fh.getFile()
-//     const text = await file.text()
-//     return JSON.parse(text) as SurveySnapshot
-//   } catch {
-//     return null
-//   }
-// }
 
 // src/utils/fs.ts
 import type { FormData, AnswerMap, Globals } from '../types'
@@ -354,80 +154,182 @@ export async function listCompanyFolders(root: FileSystemDirectoryHandle): Promi
 export type ExportMode = 'visual' | 'vector'
 
 // ===== Mentés: PDF-ek + survey.json =====
+// export async function saveSurveyToFolder(
+//   root: FileSystemDirectoryHandle,
+//   globals: Globals,
+//   forms: FormData[],
+//   answersMaps: Record<string, AnswerMap>,
+//   domByFormId?: Record<string, HTMLElement | null>,
+//   mode: ExportMode = 'visual'        // ⬅️ új: alapból vizuális (1:1)
+// ){
+//   await ensurePerms(root, 'readwrite')
+//   const folderName = sanitize(globals.companyName || 'Ismeretlen')
+//   const companyDir = await root.getDirectoryHandle(folderName, { create: true })
+
+//   let pdfs: Record<string, Uint8Array>
+
+//   if (mode === 'visual') {
+//   pdfs = {}
+
+//   // 1) forrás DOM-ok összegyűjtése:
+//   //    - ha kaptunk domByFormId-t, azt használjuk
+//   //    - ha üres vagy nincs, akkor a dokumentumból szedjük össze a .a4-page elemeket
+//   let rootsById: Record<string, HTMLElement | null> = {}
+//   if (domByFormId && Object.keys(domByFormId).length > 0) {
+//     rootsById = domByFormId
+//   } else {
+//     const nodes = Array.from(document.querySelectorAll<HTMLElement>('.a4-page'))
+//     // index szerinti párosítás: forms[i] ⇄ nodes[i]
+//     forms.forEach((f, i) => { rootsById[f.meta.id] = nodes[i] || null })
+//   }
+
+//   // 2) formonként 1-1 export (determinista fájlnév hozzárendelés)
+//   for (const f of forms) {
+//     const el = rootsById[f.meta.id] || null
+//     if (!el) {
+//       // nincs DOM ehhez a formhoz → nem exportáljuk, és NEM gyártunk semmit helyette
+//       console.warn('[saveSurveyToFolder] Hiányzó DOM ehhez a formhoz:', f.meta.name, f.meta.id)
+//       continue
+//     }
+
+//     const answers = answersMaps[f.meta.id] || {}
+//     const name = sanitize(f.meta.name || 'lap')
+
+//     // Mindig EGY job / form → 100%-os név ↔ buffer hozzárendelés
+//     const out = await exportForms1to1(
+//       [{ name: f.meta.name, el, form: f, answers }],
+//       { fontSizePx: 14, lineHeight: 1.45 }
+//     )
+
+//     // többféle visszatérési forma támogatása
+//     if (out instanceof Uint8Array) {
+//       pdfs[`${name}.pdf`] = out
+//     } else if (Array.isArray(out) && out[0] instanceof Uint8Array) {
+//       pdfs[`${name}.pdf`] = out[0] as Uint8Array
+//     } else if (out && typeof out === 'object') {
+//       const vals = Object.values(out as Record<string, Uint8Array>)
+//       if (vals[0] instanceof Uint8Array) {
+//         pdfs[`${name}.pdf`] = vals[0] as Uint8Array
+//       }
+//     }
+//   }
+
+//   // ha végül semmi nem készült, jelezzünk explicit hibát
+//   if (Object.keys(pdfs).length === 0) {
+//     throw new Error('Nincs exportálható form: nem találtunk .a4-page DOM-gyökereket.')
+//   }
+// } else {
+//   // VECTOR ág változatlan
+//   pdfs = await buildPdfsVector(globals, forms, answersMaps)
+// }
+
+
+//   // 4) fájlok kiírása
+//   for (const [fname, u8] of Object.entries(pdfs)) {
+//     const safeName = sanitize(fname) || 'lap.pdf'
+//     const fileHandle = await companyDir.getFileHandle(safeName, { create: true })
+//     const ws = await fileHandle.createWritable()
+
+//     const ab: ArrayBuffer = (u8 as Uint8Array).buffer.slice(
+//       (u8 as Uint8Array).byteOffset,
+//       (u8 as Uint8Array).byteOffset + (u8 as Uint8Array).byteLength
+//     ) as ArrayBuffer
+//     const pdfBlob = new Blob([ab], { type: 'application/pdf' })
+
+//     await ws.write(pdfBlob)
+//     await ws.close()
+//   }
+
+//   // 5) survey.json
+//   const snapshot: SurveySnapshot = {
+//     globals,
+//     answersMaps,
+//     formIds: forms.map(f => f.meta.id),
+//     savedAt: new Date().toISOString()
+//   }
+//   const jsonHandle = await companyDir.getFileHandle('survey.json', { create: true })
+//   const js = await jsonHandle.createWritable()
+//   await js.write(new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' }))
+//   await js.close()
+// }
+
+// ===== Mentés: Csak PDF, almappa és JSON nélkül =====
 export async function saveSurveyToFolder(
   root: FileSystemDirectoryHandle,
   globals: Globals,
   forms: FormData[],
   answersMaps: Record<string, AnswerMap>,
   domByFormId?: Record<string, HTMLElement | null>,
-  mode: ExportMode = 'visual'        // ⬅️ új: alapból vizuális (1:1)
+  mode: ExportMode = 'visual'        
 ){
   await ensurePerms(root, 'readwrite')
-  const folderName = sanitize(globals.companyName || 'Ismeretlen')
-  const companyDir = await root.getDirectoryHandle(folderName, { create: true })
+
+  // KIVÉVE: Almappa létrehozása (companyDir) törölve! 
+  // Helyette mindent egyenesen a 'root'-ba (a kiválasztott mappába) mentünk.
 
   let pdfs: Record<string, Uint8Array>
 
   if (mode === 'visual') {
-  pdfs = {}
+    pdfs = {}
 
-  // 1) forrás DOM-ok összegyűjtése:
-  //    - ha kaptunk domByFormId-t, azt használjuk
-  //    - ha üres vagy nincs, akkor a dokumentumból szedjük össze a .a4-page elemeket
-  let rootsById: Record<string, HTMLElement | null> = {}
-  if (domByFormId && Object.keys(domByFormId).length > 0) {
-    rootsById = domByFormId
-  } else {
-    const nodes = Array.from(document.querySelectorAll<HTMLElement>('.a4-page'))
-    // index szerinti párosítás: forms[i] ⇄ nodes[i]
-    forms.forEach((f, i) => { rootsById[f.meta.id] = nodes[i] || null })
-  }
-
-  // 2) formonként 1-1 export (determinista fájlnév hozzárendelés)
-  for (const f of forms) {
-    const el = rootsById[f.meta.id] || null
-    if (!el) {
-      // nincs DOM ehhez a formhoz → nem exportáljuk, és NEM gyártunk semmit helyette
-      console.warn('[saveSurveyToFolder] Hiányzó DOM ehhez a formhoz:', f.meta.name, f.meta.id)
-      continue
+    let rootsById: Record<string, HTMLElement | null> = {}
+    if (domByFormId && Object.keys(domByFormId).length > 0) {
+      rootsById = domByFormId
+    } else {
+      const nodes = Array.from(document.querySelectorAll<HTMLElement>('.a4-page'))
+      forms.forEach((f, i) => { rootsById[f.meta.id] = nodes[i] || null })
     }
 
-    const answers = answersMaps[f.meta.id] || {}
-    const name = sanitize(f.meta.name || 'lap')
+    // Cég neve (Fájlnév első fele)
+    const companyStr = sanitize(globals.companyName || 'Cegnev')
 
-    // Mindig EGY job / form → 100%-os név ↔ buffer hozzárendelés
-    const out = await exportForms1to1(
-      [{ name: f.meta.name, el, form: f, answers }],
-      { fontSizePx: 14, lineHeight: 1.45 }
-    )
+    for (const f of forms) {
+      const el = rootsById[f.meta.id] || null
+      if (!el) {
+        console.warn('[saveSurveyToFolder] Hiányzó DOM ehhez a formhoz:', f.meta.name, f.meta.id)
+        continue
+      }
 
-    // többféle visszatérési forma támogatása
-    if (out instanceof Uint8Array) {
-      pdfs[`${name}.pdf`] = out
-    } else if (Array.isArray(out) && out[0] instanceof Uint8Array) {
-      pdfs[`${name}.pdf`] = out[0] as Uint8Array
-    } else if (out && typeof out === 'object') {
-      const vals = Object.values(out as Record<string, Uint8Array>)
-      if (vals[0] instanceof Uint8Array) {
-        pdfs[`${name}.pdf`] = vals[0] as Uint8Array
+      const answers = answersMaps[f.meta.id] || {}
+      
+      // Felmérés típusa, pl. "Rendszer" (Fájlnév második fele)
+      const formStr = sanitize(f.meta.name || 'Felmeres') 
+
+      // ÚJ LOGIKA: Fájlnév összerakása (pl. "Alma Kft_Rendszer")
+      const name = `${companyStr}_${formStr}`
+
+      const out = await exportForms1to1(
+        [{ name: f.meta.name, el, form: f, answers }],
+        { fontSizePx: 14, lineHeight: 1.45 }
+      )
+
+      if (out instanceof Uint8Array) {
+        pdfs[`${name}.pdf`] = out
+      } else if (Array.isArray(out) && out[0] instanceof Uint8Array) {
+        pdfs[`${name}.pdf`] = out[0] as Uint8Array
+      } else if (out && typeof out === 'object') {
+        const vals = Object.values(out as Record<string, Uint8Array>)
+        if (vals[0] instanceof Uint8Array) {
+          pdfs[`${name}.pdf`] = vals[0] as Uint8Array
+        }
       }
     }
+
+    if (Object.keys(pdfs).length === 0) {
+      throw new Error('Nincs exportálható form: nem találtunk .a4-page DOM-gyökereket.')
+    }
+  } else {
+    // VECTOR ág (ha használnád valamikor)
+    pdfs = await buildPdfsVector(globals, forms, answersMaps)
   }
 
-  // ha végül semmi nem készült, jelezzünk explicit hibát
-  if (Object.keys(pdfs).length === 0) {
-    throw new Error('Nincs exportálható form: nem találtunk .a4-page DOM-gyökereket.')
-  }
-} else {
-  // VECTOR ág változatlan
-  pdfs = await buildPdfsVector(globals, forms, answersMaps)
-}
 
-
-  // 4) fájlok kiírása
+  // 4) Fájlok kiírása KÖZVETLENÜL a kiválasztott mappába
   for (const [fname, u8] of Object.entries(pdfs)) {
     const safeName = sanitize(fname) || 'lap.pdf'
-    const fileHandle = await companyDir.getFileHandle(safeName, { create: true })
+    
+    // MÓDOSÍTÁS: companyDir helyett a 'root'-ot használjuk
+    const fileHandle = await root.getFileHandle(safeName, { create: true })
     const ws = await fileHandle.createWritable()
 
     const ab: ArrayBuffer = (u8 as Uint8Array).buffer.slice(
@@ -440,17 +342,8 @@ export async function saveSurveyToFolder(
     await ws.close()
   }
 
-  // 5) survey.json
-  const snapshot: SurveySnapshot = {
-    globals,
-    answersMaps,
-    formIds: forms.map(f => f.meta.id),
-    savedAt: new Date().toISOString()
-  }
-  const jsonHandle = await companyDir.getFileHandle('survey.json', { create: true })
-  const js = await jsonHandle.createWritable()
-  await js.write(new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' }))
-  await js.close()
+  // 5) JSON MENTÉS TELJESEN KIVÉVE!
+  // Nincs több survey.json fájl a mappában.
 }
 
 // ===== Betöltés =====

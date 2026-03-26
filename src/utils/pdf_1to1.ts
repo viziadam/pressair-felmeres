@@ -3,133 +3,6 @@ import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 
 
-
-// const PAGE_W_MM = 210
-// const PAGE_H_MM = 297
-// const A4_PX_W = 794 // ~ A4 @96dpi
-// const SLICE_QUALITY = 0.92
-
-// /** 1) Form kontrollok értékének tükrözése a klónba */
-// function mirrorFormValues(srcRoot: HTMLElement, dstRoot: HTMLElement) {
-//   const srcInputs = srcRoot.querySelectorAll<HTMLInputElement>('input')
-//   const dstInputs = dstRoot.querySelectorAll<HTMLInputElement>('input')
-//   srcInputs.forEach((s, i) => {
-//     const d = dstInputs[i]
-//     if (!d) return
-//     if (s.type === 'checkbox' || s.type === 'radio') d.checked = s.checked
-//     else d.value = s.value
-//   })
-//   const srcTextareas = srcRoot.querySelectorAll<HTMLTextAreaElement>('textarea')
-//   const dstTextareas = dstRoot.querySelectorAll<HTMLTextAreaElement>('textarea')
-//   srcTextareas.forEach((s, i) => { const d = dstTextareas[i]; if (d) d.value = s.value })
-
-//   const srcSelects = srcRoot.querySelectorAll<HTMLSelectElement>('select')
-//   const dstSelects = dstRoot.querySelectorAll<HTMLSelectElement>('select')
-//   srcSelects.forEach((s, i) => {
-//     const d = dstSelects[i]; if (!d) return
-//     Array.from(d.options).forEach(o => { o.selected = s.selectedOptions && Array.from(s.selectedOptions).some(so => so.value === o.value) })
-//   })
-
-//   // contentEditable mezők (pl. note_text fallback)
-//   const srcCE = srcRoot.querySelectorAll<HTMLElement>('[contenteditable=""],[contenteditable="true"]')
-//   const dstCE = dstRoot.querySelectorAll<HTMLElement>('[contenteditable=""],[contenteditable="true"]')
-//   srcCE.forEach((s, i) => { const d = dstCE[i]; if (d) d.textContent = s.textContent || '' })
-// }
-
-// /** 2) Canvasok cseréje képre (aktuális méretben), hogy biztosan bekerüljenek a snapshotba */
-// function replaceCanvasesWithImages(srcRoot: HTMLElement, dstRoot: HTMLElement) {
-//   const srcCanvases = srcRoot.querySelectorAll<HTMLCanvasElement>('canvas')
-//   const dstCanvases = dstRoot.querySelectorAll<HTMLCanvasElement>('canvas')
-
-//   srcCanvases.forEach((src, i) => {
-//     const dst = dstCanvases[i]
-//     if (!dst) return
-//     // Mérjük a képernyős méretet, hogy az export ugyanolyan legyen
-//     const r = (src as HTMLCanvasElement).getBoundingClientRect()
-//     const dataUrl = (src as HTMLCanvasElement).toDataURL('image/png')
-//     const img = dst.ownerDocument!.createElement('img')
-//     img.src = dataUrl
-//     img.alt = 'ink'
-//     img.style.display = 'block'
-//     img.style.width = `${Math.max(1, Math.round(r.width))}px`
-//     img.style.height = `${Math.max(1, Math.round(r.height))}px`
-//     // ha keretben van (.ink-box), megtartjuk a szülőt, csak kicseréljük a node-ot
-//     dst.replaceWith(img)
-//   })
-// }
-
-/** 3) Képek biztos betöltése + méret rögzítése a klónban a jelenlegi render alapján */
-// async function normalizeImages(srcRoot: HTMLElement, dstRoot: HTMLElement) {
-//   const srcImgs = srcRoot.querySelectorAll<HTMLImageElement>('img')
-//   const dstImgs = dstRoot.querySelectorAll<HTMLImageElement>('img')
-
-//   // állítsunk width/height-ot a tényleges képernyős méretre (így nem "ugrik" a layout)
-//   srcImgs.forEach((s, i) => {
-//     const d = dstImgs[i]; if (!d) return
-//     const r = s.getBoundingClientRect()
-//     d.style.width = `${Math.max(1, Math.round(r.width))}px`
-//     d.style.height = `${Math.max(1, Math.round(r.height))}px`
-//     // ha az eredeti még nem töltött be, próbáljunk decode-olni
-//   })
-
-//   // várjuk meg, míg minden kép dekódol
-//   const all = Array.from(dstImgs).map(im =>
-//     (im.decode ? im.decode() : Promise.resolve()).catch(() => {})
-//   )
-//   await Promise.all(all)
-// }
-
-// /** 4) Offscreen konténer létrehozása */
-// function makeStaging(): HTMLElement {
-//   const staging = document.createElement('div')
-//   staging.style.position = 'fixed'
-//   staging.style.left = '-200vw'
-//   staging.style.top = '0'
-//   staging.style.width = `${A4_PX_W}px` // fontos: ugyanaz a szélesség, mint a képernyős A4
-//   staging.style.pointerEvents = 'none'
-//   staging.style.zIndex = '-1'
-//   document.body.appendChild(staging)
-//   return staging
-// }
-
-// /** 5) Elem -> többoldalas PDF képként (100% layout fidelity) */
-// async function elementToPagedPdf(el: HTMLElement): Promise<jsPDF> {
-//   // nagy skála az élességhez
-//   const canvas = await html2canvas(el, {
-//     backgroundColor: '#ffffff',
-//     scale: Math.max(2, window.devicePixelRatio || 1),
-//     useCORS: true,
-//     logging: false,
-//     width: A4_PX_W,
-//   })
-
-//   const fullW = canvas.width
-//   const fullH = canvas.height
-//   const pageHeightPx = Math.floor(fullW * (PAGE_H_MM / PAGE_W_MM))
-//   const mmPerPx = PAGE_W_MM / fullW
-
-//   const doc = new jsPDF({ unit: 'mm', format: 'a4' })
-//   let y = 0
-//   let first = true
-//   while (y < fullH) {
-//     const sliceH = Math.min(pageHeightPx, fullH - y)
-//     const pageCanvas = document.createElement('canvas')
-//     pageCanvas.width = fullW
-//     pageCanvas.height = sliceH
-//     const ctx = pageCanvas.getContext('2d')!
-//     ctx.drawImage(canvas, 0, y, fullW, sliceH, 0, 0, fullW, sliceH)
-//     const dataUrl = pageCanvas.toDataURL('image/jpeg', SLICE_QUALITY)
-//     const imgHmm = sliceH * mmPerPx
-//     if (!first) doc.addPage()
-//     doc.addImage(dataUrl, 'JPEG', 0, 0, PAGE_W_MM, imgHmm)
-//     first = false
-//     y += sliceH
-//   }
-//   return doc
-// }
-
-// pdf_1to1.ts – KIEGÉSZÍTÉSEK / CSERE
-
 type Job = { name: string; el: HTMLElement; form?: any; answers?: Record<string, any> }
 
 const PAGE_W_MM = 210
@@ -764,44 +637,82 @@ function _rowIsEmpty(row: HTMLElement): boolean {
 }
 
 // --- Prune: üres sorok kidobása a .list alatt (modulokon belül is) ----------
+// function pruneEmptyByControls(cloneRoot: HTMLElement) {
+//   const list = cloneRoot.querySelector('.list') as HTMLElement | null
+//   if (!list) return
+
+//   // 1) kidobjuk az üres .form-row / .stacked / .no-border blokkokat
+//   const rows = list.querySelectorAll<HTMLElement>('.form-row, .stacked, .no-border')
+//   rows.forEach(row => {
+//     if (_rowIsEmpty(row)) row.remove()
+//   })
+
+//   // 2) ha egy modul/kártya teljesen kiürült (nincs benne sem vezérlő, sem kép),
+//   //    akkor a felső konténert is eltávolítjuk, hogy ne maradjon címke
+//   //    (lefuttatjuk párszor, amíg nem marad „csontváz”):
+//   for (let pass = 0; pass < 3; pass++) {
+//     const blocks = Array.from(list.querySelectorAll<HTMLElement>('*'))
+//     let removed = 0
+//     for (const b of blocks) {
+//       // hagyjuk békén a sorokat (azokat már kezeltük), és a .list-et magát
+//       if (b === list) continue
+//       if (b.matches('.form-row, .stacked, .no-border')) continue
+
+//       // ha nincs benne sem input/textarea/select/CE/img/canvas/file-chip/image-tile → kuka
+//       if (!b.querySelector('input, textarea, select, [contenteditable=""], [contenteditable="true"], img, canvas, .file-chip, .image-tile')) {
+//         // és csak „tipikus” wrapper-eket takarítunk: div, section, article, fieldset, etc.
+//         if (/(DIV|SECTION|ARTICLE|FIELDSET)/.test(b.tagName)) {
+//           // de csak akkor, ha tényleg nincs benne látható gyerek
+//           const hasVisible = Array.from(b.children).some(ch => {
+//             const cs = getComputedStyle(ch as HTMLElement)
+//             return cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0'
+//           })
+//           if (!hasVisible) { b.remove(); removed++ }
+//         }
+//       }
+//     }
+//     if (!removed) break
+//   }
+
+//   // 3) ha teljesen kiürült a .list → hagyjunk kicsi padot, hogy a header alatt legyen tér
+//   if (list.children.length === 0) {
+//     const pad = document.createElement('div')
+//     pad.style.height = '40px'
+//     list.appendChild(pad)
+//   }
+// }
+
+// --- Prune: üres sorok kidobása a .list alatt (modulokon belül is) ----------
 function pruneEmptyByControls(cloneRoot: HTMLElement) {
   const list = cloneRoot.querySelector('.list') as HTMLElement | null
   if (!list) return
 
-  // 1) kidobjuk az üres .form-row / .stacked / .no-border blokkokat
+  // 1) Kidobjuk az üres .form-row blokkokat (A FormFiller class-ok miatt most már a modulokban is megtalálja!)
   const rows = list.querySelectorAll<HTMLElement>('.form-row, .stacked, .no-border')
   rows.forEach(row => {
     if (_rowIsEmpty(row)) row.remove()
   })
 
-  // 2) ha egy modul/kártya teljesen kiürült (nincs benne sem vezérlő, sem kép),
-  //    akkor a felső konténert is eltávolítjuk, hogy ne maradjon címke
-  //    (lefuttatjuk párszor, amíg nem marad „csontváz”):
-  for (let pass = 0; pass < 3; pass++) {
-    const blocks = Array.from(list.querySelectorAll<HTMLElement>('*'))
-    let removed = 0
-    for (const b of blocks) {
-      // hagyjuk békén a sorokat (azokat már kezeltük), és a .list-et magát
-      if (b === list) continue
-      if (b.matches('.form-row, .stacked, .no-border')) continue
-
-      // ha nincs benne sem input/textarea/select/CE/img/canvas/file-chip/image-tile → kuka
-      if (!b.querySelector('input, textarea, select, [contenteditable=""], [contenteditable="true"], img, canvas, .file-chip, .image-tile')) {
-        // és csak „tipikus” wrapper-eket takarítunk: div, section, article, fieldset, etc.
-        if (/(DIV|SECTION|ARTICLE|FIELDSET)/.test(b.tagName)) {
-          // de csak akkor, ha tényleg nincs benne látható gyerek
-          const hasVisible = Array.from(b.children).some(ch => {
-            const cs = getComputedStyle(ch as HTMLElement)
-            return cs.display !== 'none' && cs.visibility !== 'hidden' && cs.opacity !== '0'
-          })
-          if (!hasVisible) { b.remove(); removed++ }
-        }
-      }
+  // 2) ÚJ: Üres szekciók (pl. "3.0 Légkezelő") alcímeinek eltüntetése
+  const sections = list.querySelectorAll<HTMLElement>('.module-section')
+  sections.forEach(sec => {
+    // Ha a szekció alatt nem maradt egyetlen látható sor (form-row) sem, kuka az alcím is!
+    if (!sec.querySelector('.form-row:not([style*="display: none"])')) {
+      sec.remove() 
     }
-    if (!removed) break
-  }
+  })
 
-  // 3) ha teljesen kiürült a .list → hagyjunk kicsi padot, hogy a header alatt legyen tér
+  // 3) ÚJ: Teljesen kiürült modul példányok (kártyák) eltüntetése
+  const instances = list.querySelectorAll<HTMLElement>('.module-instance')
+  instances.forEach(inst => {
+    // Csak akkor tartjuk meg a kártyát (címmel együtt), ha maradt benne értelmes tartalom
+    const hasContent = inst.querySelector('input, textarea, select, img, canvas, .form-row:not([style*="display: none"])');
+    if (!hasContent) {
+      inst.remove(); // Nincs érdemi tartalom -> kuka a komplett kártya!
+    }
+  })
+
+  // 4) Ha teljesen kiürült a .list -> hagyjunk kicsi padot
   if (list.children.length === 0) {
     const pad = document.createElement('div')
     pad.style.height = '40px'
