@@ -1053,35 +1053,89 @@ export default function Surveys(){
     setActiveAnswer(structuredClone(formAns))
   }, [activeForm?.meta?.id])
 
+  // function onFormChange(next: FormData) {
+  //   setForms(prev => {
+  //     const updated = prev.map(f => f.meta.id === next.meta.id ? next : f)
+  //     saveAllLocal(updated)
+  //     return updated
+  //   })
+  // }
+
   function onFormChange(next: FormData) {
-    setForms(prev => {
-      const updated = prev.map(f => f.meta.id === next.meta.id ? next : f)
-      saveAllLocal(updated)
-      return updated
-    })
-  }
+  setForms(prev => {
+    const updated = prev.map(f => f.meta.id === next.meta.id ? next : f);
+    const activeId = getActiveSurveyId();
+    if (activeId) {
+       const state = { id: activeId, forms: updated, answers: answersMap, globals: globals, updatedAt: new Date().toISOString() };
+       localStorage.setItem(`surveys/${activeId}`, JSON.stringify(state));
+    }
+    return updated;
+  });
+}
 
-  function onAnswersChange(formId: string, ansPartial: AnswerMap){
-    setAnswersMap(prev => {
-      const old = prev[formId] || {};
-      const changed = Object.keys(ansPartial).some(k => old[k] !== ansPartial[k]);
-      if (!changed) return prev;
+  // function onAnswersChange(formId: string, ansPartial: AnswerMap){
+  //   setAnswersMap(prev => {
+  //     const old = prev[formId] || {};
+  //     const changed = Object.keys(ansPartial).some(k => old[k] !== ansPartial[k]);
+  //     if (!changed) return prev;
 
-      const merged = { ...old, ...ansPartial };
-      const next = { ...prev, [formId]: merged };
+  //     const merged = { ...old, ...ansPartial };
+  //     const next = { ...prev, [formId]: merged };
 
+  //     if (perFormSaveTimerRef.current[formId]) window.clearTimeout(perFormSaveTimerRef.current[formId]);
+  //     perFormSaveTimerRef.current[formId] = window.setTimeout(() => {
+  //       try {
+  //         saveAnswersLocal(formId, merged);
+  //       } catch (e: any) {
+  //         if (e.name === 'QuotaExceededError') alert('Figyelem: Megtelt a helyi tárhely!');
+  //       }
+  //     }, 500) as unknown as number;
+
+  //     return next;
+  //   });
+  // }
+
+  function onAnswersChange(formId: string, ansPartial: AnswerMap) {
+  setAnswersMap(prev => {
+    const old = prev[formId] || {};
+    // Megnézzük, történt-e valódi változás
+    const changed = Object.keys(ansPartial).some(k => old[k] !== ansPartial[k]);
+    if (!changed) return prev;
+
+    const merged = { ...old, ...ansPartial };
+    const nextMap = { ...prev, [formId]: merged };
+
+    // AZONNALI MENTÉS LOCALSTORAGE-BA (OFFLINE BIZTONSÁG)
+    // Nem várunk a szerverre, ide mentjük az egészet, hogy reload után is megmaradjon
+    const activeId = getActiveSurveyId();
+    if (activeId) {
       if (perFormSaveTimerRef.current[formId]) window.clearTimeout(perFormSaveTimerRef.current[formId]);
+      
       perFormSaveTimerRef.current[formId] = window.setTimeout(() => {
         try {
-          saveAnswersLocal(formId, merged);
+          // Itt a teljes survey-t mentjük, nem csak a részletet!
+          const stateToSave = {
+            id: activeId,
+            forms: forms,
+            answers: nextMap, // A frissített válasz-térkép
+            globals: globals,
+            updatedAt: new Date().toISOString()
+          };
+          localStorage.setItem(`surveys/${activeId}`, JSON.stringify(stateToSave));
+          
+          // Ezt a függvényt is meg kell hívni, ha a storage.ts-ben definiálva van
+          // hogy a szinkronizáció is tudjon róla
+          saveAnswersLocal(formId, merged); 
+          
         } catch (e: any) {
-          if (e.name === 'QuotaExceededError') alert('Figyelem: Megtelt a helyi tárhely!');
+          if (e.name === 'QuotaExceededError') console.error('Helyi tárhely megtelt!');
         }
-      }, 500) as unknown as number;
+      }, 300) as unknown as number; // Rövidebb debounce a biztonságért
+    }
 
-      return next;
-    });
-  }
+    return nextMap;
+  });
+}
 
   async function finishToFolder(){
     if (!globals.companyName.trim()) { alert('Előbb add meg a cég nevét a kezdő oldalon.'); nav('/'); return; }
@@ -1113,38 +1167,107 @@ export default function Surveys(){
   }
 
   // --- ÚJ FUNKCIÓ: Lokális Biztonsági Mentés (Export) ---
+  // function exportLocalSurveys() {
+  //   try {
+  //     const surveysToExport: SurveyState[] = [];
+      
+  //     // Végigiterálunk a localStorage-on, és kimentünk minden survey-t
+  //     for (let i = 0; i < localStorage.length; i++) {
+  //       const key = localStorage.key(i);
+  //       if (key && key.startsWith('surveys/') && key !== 'surveys/__active__' && key !== 'surveys/__index__') {
+  //         const raw = localStorage.getItem(key);
+  //         if (raw) {
+  //           surveysToExport.push(JSON.parse(raw));
+  //         }
+  //       }
+  //     }
+
+  //     if (surveysToExport.length === 0) {
+  //       alert("Nincs mit exportálni. A helyi tárhely üres.");
+  //       return;
+  //     }
+
+  //     // Előállítjuk a JSON-t
+  //     const dataStr = JSON.stringify(surveysToExport, null, 2);
+      
+  //     // Blob készítése (ez garantálja, hogy mobilon fájlként töltődik le, nem nyílik meg sima szövegként)
+  //     const blob = new Blob([dataStr], { type: 'application/json' });
+  //     const url = URL.createObjectURL(blob);
+      
+  //     // Fájlnév: datum-időpont.json
+  //     const dateStr = new Date().toISOString().slice(0,10);
+  //     const filename = `pressair_offline_mentes_${dateStr}.json`;
+
+  //     // Láthatatlan link trükk a letöltéshez (mobil és asztali kompatibilis)
+  //     const a = document.createElement('a');
+  //     a.href = url;
+  //     a.download = filename;
+  //     document.body.appendChild(a);
+  //     a.click();
+      
+  //     // Takarítás
+  //     document.body.removeChild(a);
+  //     URL.revokeObjectURL(url);
+      
+  //   } catch (err) {
+  //     console.error("Export hiba:", err);
+  //     alert("Hiba történt az adatok kimentésekor!");
+  //   }
+  // }
+
   function exportLocalSurveys() {
     try {
-      const surveysToExport: SurveyState[] = [];
-      
-      // Végigiterálunk a localStorage-on, és kimentünk minden survey-t
+      const surveysToExport: any[] = [];
+      const activeId = getActiveSurveyId();
+
+      // 1. Megpróbáljuk begyűjteni az összes mentett survey-t a LocalStorage-ból
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('surveys/') && key !== 'surveys/__active__' && key !== 'surveys/__index__') {
+        if (key && key.startsWith('surveys/') && !key.includes('__')) {
           const raw = localStorage.getItem(key);
           if (raw) {
-            surveysToExport.push(JSON.parse(raw));
+            try {
+              surveysToExport.push(JSON.parse(raw));
+            } catch (e) { /* hibás JSON skip */ }
           }
         }
       }
 
+      // 2. KRITIKUS LÉPÉS: Ha a fenti lista üres, VAGY ha az éppen nyitott survey 
+      // frissebb adatai a memóriában vannak, akkor azt adjuk hozzá/frissítjük.
+      // Ezzel garantáljuk, hogy amit látsz a képernyőn, az benne legyen a mentésben.
+      if (activeId && (forms.length > 0 || Object.keys(answersMap).length > 0)) {
+        const currentState = {
+          id: activeId,
+          forms: forms,
+          answers: answersMap,
+          globals: globals,
+          updatedAt: new Date().toISOString()
+        };
+
+        // Megnézzük, benne van-e már az ID alapján a listában
+        const existingIdx = surveysToExport.findIndex(s => s.id === activeId);
+        if (existingIdx > -1) {
+          surveysToExport[existingIdx] = currentState; // Frissítjük a legfrissebbre
+        } else {
+          surveysToExport.push(currentState); // Hozzáadjuk újként
+        }
+      }
+
+      // 3. Végső ellenőrzés
       if (surveysToExport.length === 0) {
-        alert("Nincs mit exportálni. A helyi tárhely üres.");
+        alert("Nincs mit exportálni. Nincs aktív felmérés és a tárhely is üres.");
         return;
       }
 
-      // Előállítjuk a JSON-t
+      // 4. Letöltés indítása (Blob + Link trükk)
       const dataStr = JSON.stringify(surveysToExport, null, 2);
-      
-      // Blob készítése (ez garantálja, hogy mobilon fájlként töltődik le, nem nyílik meg sima szövegként)
       const blob = new Blob([dataStr], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       
-      // Fájlnév: datum-időpont.json
-      const dateStr = new Date().toISOString().slice(0,10);
-      const filename = `pressair_offline_mentes_${dateStr}.json`;
+      const dateStr = new Date().toISOString().slice(0, 10);
+      const filename = `pressair_backup_${dateStr}.json`;
 
-      // Láthatatlan link trükk a letöltéshez (mobil és asztali kompatibilis)
       const a = document.createElement('a');
       a.href = url;
       a.download = filename;
@@ -1152,12 +1275,16 @@ export default function Surveys(){
       a.click();
       
       // Takarítás
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+
+      console.log("Export sikeres:", surveysToExport.length, "db felmérés.");
+
     } catch (err) {
       console.error("Export hiba:", err);
-      alert("Hiba történt az adatok kimentésekor!");
+      alert("Hiba történt az exportálás során!");
     }
   }
 

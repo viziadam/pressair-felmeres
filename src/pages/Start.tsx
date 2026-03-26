@@ -633,45 +633,111 @@ export default function Start() {
     });
   }
 
+  // async function importSurveys(files: FileList | null) {
+  //   if (!files || files.length === 0) return;
+  //   let firstImportedId: string | null = null;
+    
+  //   alert("Importálás és szerverre mentés indult! Kérlek, várj...");
+    
+  //   for (const f of Array.from(files)) {
+  //     try {
+  //       const raw = await readAsText(f); 
+  //       const parsed = JSON.parse(raw); 
+  //       const arr = Array.isArray(parsed) ? parsed : [parsed];
+        
+  //       for (const s of arr) { 
+  //         if (!s.id) s.id = crypto.randomUUID(); 
+  //         saveSurveyLocal(s.id, s); 
+  //         if (!firstImportedId) firstImportedId = s.id; 
+          
+  //         setActiveSurveyId(s.id); 
+  //         try {
+  //           await saveAll(s.forms || [], s.answers || {}, s.globals || EMPTY);
+  //         } catch (serverErr) {
+  //           console.error("Szerver hiba importálásnál:", serverErr);
+  //         }
+  //       }
+  //     } catch (err) {
+  //       console.error("Hibás JSON fájl:", err);
+  //     }
+  //   }
+    
+  //   setItems(listSurveys());
+  //   if (firstImportedId) { 
+  //     setActiveSurveyId(firstImportedId); 
+  //     nav('/surveys'); 
+  //   } else {
+  //     setActiveSurveyId(null);
+  //   }
+  //   if (fileRef.current) fileRef.current.value = '';
+    
+  //   alert("Az importálás kész! A fájlok a szerverre is felkerültek.");
+  // }
+
   async function importSurveys(files: FileList | null) {
     if (!files || files.length === 0) return;
-    let firstImportedId: string | null = null;
     
-    alert("Importálás és szerverre mentés indult! Kérlek, várj...");
+    let importedCount = 0;
+    let lastId: string | null = null;
+    
+    alert("Importálás folyamatban...");
     
     for (const f of Array.from(files)) {
       try {
         const raw = await readAsText(f); 
         const parsed = JSON.parse(raw); 
-        const arr = Array.isArray(parsed) ? parsed : [parsed];
         
-        for (const s of arr) { 
-          if (!s.id) s.id = crypto.randomUUID(); 
-          saveSurveyLocal(s.id, s); 
-          if (!firstImportedId) firstImportedId = s.id; 
+        // Kezeljük, ha egyetlen objektum vagy ha egy lista van a fájlban
+        const surveysArray = Array.isArray(parsed) ? parsed : [parsed];
+        
+        for (const s of surveysArray) { 
+          // 1. Validáció: kell egy ID és a szükséges adatszerkezet
+          const sId = s.id || crypto.randomUUID();
           
-          setActiveSurveyId(s.id); 
+          // 2. Mentés a LocalStorage-ba a megfelelő kulcs alá (Offline biztonság)
+          // Ez biztosítja, hogy a kezdőlapon azonnal megjelenjen a listában
+          const stateToSave = {
+            id: sId,
+            forms: s.forms || [],
+            answers: s.answers || {},
+            globals: s.globals || s.g || EMPTY, // Támogatjuk mindkét elnevezést
+            updatedAt: s.updatedAt || new Date().toISOString()
+          };
+          
+          localStorage.setItem(`surveys/${sId}`, JSON.stringify(stateToSave));
+          
+          // 3. Jelzés a belső storage logikának (ha szükséges az index frissítéséhez)
+          saveSurveyLocal(sId, stateToSave); 
+          
+          lastId = sId;
+          importedCount++;
+
+          // 4. Mentés a szerverre (Service Worker outbox elkapja, ha nincs net)
           try {
-            await saveAll(s.forms || [], s.answers || {}, s.globals || EMPTY);
+            await saveAll(stateToSave.forms, stateToSave.answers, stateToSave.globals);
           } catch (serverErr) {
-            console.error("Szerver hiba importálásnál:", serverErr);
+            console.warn("Szerver mentés sikertelen, de helyileg elmentve:", serverErr);
           }
         }
       } catch (err) {
-        console.error("Hibás JSON fájl:", err);
+        console.error("Hiba a fájl feldolgozásakor:", f.name, err);
+        alert(`Hiba a(z) ${f.name} fájl beolvasásakor.`);
       }
     }
     
+    // Frissítjük a kezdőlap listáját
+    await refreshIndex(); 
     setItems(listSurveys());
-    if (firstImportedId) { 
-      setActiveSurveyId(firstImportedId); 
-      nav('/surveys'); 
-    } else {
-      setActiveSurveyId(null);
-    }
+    
     if (fileRef.current) fileRef.current.value = '';
     
-    alert("Az importálás kész! A fájlok a szerverre is felkerültek.");
+    alert(`Sikeresen importálva: ${importedCount} db felmérés.`);
+
+    // Opcionális: Ha csak egyet importáltunk, ugorjunk is bele
+    if (importedCount === 1 && lastId) {
+      setActiveSurveyId(lastId);
+      nav('/surveys');
+    }
   }
 
   return (
